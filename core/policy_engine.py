@@ -1,0 +1,361 @@
+# core/policy_engine.py
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+from core.tuples import EnhancedContextualIntegrityTuple, TemporalContext
+import yaml
+from pathlib import Path
+
+class TemporalPolicyEngine:
+    """
+    Core engine for evaluating temporal policies based on the 6-tuple framework
+    """
+    
+    def __init__(self):
+        self.rules_file = Path(__file__).parent.parent / "mocks" / "rules.yaml"
+        self.oncall_file = Path(__file__).parent.parent / "mocks" / "oncall.yaml"
+        self.incidents_file = Path(__file__).parent.parent / "mocks" / "incidents.yaml"
+    
+    def evaluate_temporal_access(
+        self, 
+        request: EnhancedContextualIntegrityTuple,
+        context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Evaluate temporal access based on 6-tuple contextual integrity
+        """
+        result = {
+            "decision": "DENY",
+            "reasons": [],
+            "temporal_factors": {},
+            "policy_matched": None,
+            "expires_at": None,
+            "next_review": None,
+            "confidence_score": 0.0,
+            "risk_level": "high"
+        }
+        
+        # Load temporal policies
+        with open(self.rules_file, 'r') as f:
+            rules_data = yaml.safe_load(f)
+            rules = rules_data.get("rules", [])
+        
+        with open(self.oncall_file, 'r') as f:
+            oncall_data = yaml.safe_load(f)
+        
+        with open(self.incidents_file, 'r') as f:
+            incidents_data = yaml.safe_load(f)
+        
+        # Evaluate temporal context
+        temporal_eval = self._evaluate_temporal_context(
+            request.temporal_context, 
+            oncall_data,
+            incidents_data
+        )
+        result["temporal_factors"] = temporal_eval
+        
+        # Check emergency override first (highest priority)
+        if request.temporal_context.emergency_override:
+            result["decision"] = "ALLOW"
+            result["reasons"].append("Emergency override active")
+            result["expires_at"] = (
+                datetime.utcnow() + timedelta(hours=4)
+            ).isoformat()
+            result["confidence_score"] = 0.9
+            result["risk_level"] = "medium"
+            return result
+        
+        # Check critical service bypass
+        service_bypass = self._check_service_bypass(request, oncall_data)
+        if service_bypass["allowed"]:
+            result["decision"] = "ALLOW"
+            result["reasons"].extend(service_bypass["reasons"])
+            result["expires_at"] = service_bypass.get("expires_at")
+            result["confidence_score"] = 0.8
+            result["risk_level"] = "low"
+            return result
+        
+        # Evaluate against temporal rules
+        best_match = None
+        best_score = 0
+        
+        for rule in rules:
+            match_result = self._matches_temporal_rule(request, rule)
+            if match_result["matches"] and match_result["score"] > best_score:
+                best_match = rule
+                best_score = match_result["score"]
+        
+        if best_match:
+            result["decision"] = best_match.get("action", "DENY")
+            result["policy_matched"] = best_match.get("id")
+            result["reasons"].append(f"Matched policy: {best_match.get('id')}")
+            result["confidence_score"] = best_score
+            result["risk_level"] = self._calculate_risk_level(request, best_match)
+            
+            # Set expiration based on rule
+            if "temporal_context" in best_match:
+                tc = best_match["temporal_context"]
+                if "access_window" in tc and tc["access_window"].get("end"):
+                    result["expires_at"] = tc["access_window"]["end"]
+                else:
+                    # Default 8-hour expiration for matched policies
+                    result["expires_at"] = (
+                        datetime.utcnow() + timedelta(hours=8)
+                    ).isoformat()
+        
+        # Default deny with comprehensive reasons
+        if result["decision"] == "DENY":
+            result["reasons"].append("No matching temporal policy found")
+            if not temporal_eval["business_hours"]:
+                result["reasons"].append("Outside business hours")
+            if temporal_eval["weekend"] and not temporal_eval["weekend_support"]:
+                result["reasons"].append("Weekend access not permitted for this service")
+            if temporal_eval["data_stale"]:
+                result["reasons"].append("Data freshness requirements not met")
+        
+        # Set next review time
+        result["next_review"] = (
+            datetime.utcnow() + timedelta(hours=1)
+        ).isoformat()
+        
+        return result
+    
+    def _evaluate_temporal_context(
+        self, 
+        temporal_context: TemporalContext,
+        oncall_data: Dict[str, Any],
+        incidents_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Evaluate the temporal context against business rules
+        """
+        now = temporal_context.timestamp
+        bh = oncall_data.get("business_hours", {})
+        
+        # Check if weekend
+        is_weekend = now.weekday() >= 5
+        weekend_support = bh.get("weekend_support", {})
+        
+        # Check data freshness
+        data_stale = (
+            temporal_context.data_freshness_seconds is not None and 
+            temporal_context.data_freshness_seconds > 3600
+        )
+        
+        # Count active incidents
+        active_incidents = len([
+            inc for inc in incidents_data.get("incidents", [])
+            if inc.get("status") == "investigating"
+        ])
+        
+        return {
+            "business_hours": temporal_context.business_hours,
+            "emergency_active": temporal_context.emergency_override,
+            "current_hour": now.hour,
+            "timezone": temporal_context.timezone,
+            "situation": temporal_context.situation,
+            "temporal_role": temporal_context.temporal_role,
+            "data_stale": data_stale,
+            "weekend": is_weekend,
+            "weekend_support": weekend_support.get("critical_only", False),
+            "active_incidents_count": active_incidents,
+            "data_freshness_ok": not data_stale
+        }
+    
+    def _check_service_bypass(
+        self,
+        request: EnhancedContextualIntegrityTuple,
+        oncall_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Check if service qualifies for emergency bypass
+        """
+        global_policies = oncall_data.get("global_policies", {})
+        bypass_roles = global_policies.get("emergency_bypass_roles", [])
+        
+        # Extract service from recipient or sender
+        service = None
+        if hasattr(request, 'data_sender'):
+            service = request.data_sender
+        elif hasattr(request, 'data_recipient'):
+            service = request.data_recipient
+        
+        if service in bypass_roles:
+            return {
+                "allowed": True,
+                "reasons": [f"Service {service} has emergency bypass authorization"],
+                "expires_at": (datetime.utcnow() + timedelta(hours=2)).isoformat()
+            }
+        
+        # Check for critical service during incident
+        if (request.temporal_context.emergency_override and 
+            request.temporal_context.temporal_role and 
+            "critical" in request.temporal_context.temporal_role):
+            return {
+                "allowed": True,
+                "reasons": ["Critical service during active incident"],
+                "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat()
+            }
+        
+        return {"allowed": False, "reasons": []}
+    
+    def _matches_temporal_rule(
+        self, 
+        request: EnhancedContextualIntegrityTuple, 
+        rule: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Check if request matches a temporal rule with scoring
+        """
+        score = 0.0
+        max_score = 6.0  # 6-tuple elements
+        
+        # Check tuple matching
+        tuples = rule.get("tuples", {})
+        tuple_match = self._matches_tuple_fields(request, tuples)
+        if not tuple_match["matches"]:
+            return {"matches": False, "score": 0.0}
+        
+        score += tuple_match["score"]
+        
+        # Check temporal constraints
+        temporal_constraints = rule.get("temporal_context", {})
+        temporal_match = self._matches_temporal_constraints(
+            request.temporal_context, 
+            temporal_constraints
+        )
+        
+        if not temporal_match["matches"]:
+            return {"matches": False, "score": 0.0}
+        
+        score += temporal_match["score"]
+        
+        return {"matches": True, "score": score / max_score}
+    
+    def _matches_tuple_fields(
+        self, 
+        request: EnhancedContextualIntegrityTuple, 
+        rule_tuples: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Check if request matches tuple field constraints with scoring
+        """
+        score = 0.0
+        fields_checked = 0
+        
+        tuple_fields = {
+            "data_type": getattr(request, "data_type", None),
+            "data_sender": getattr(request, "data_sender", None),
+            "data_recipient": getattr(request, "data_recipient", None),
+            "transmission_principle": getattr(request, "transmission_principle", None)
+        }
+        
+        for field, expected in rule_tuples.items():
+            if field in tuple_fields:
+                fields_checked += 1
+                actual = tuple_fields[field]
+                
+                if expected == "*":
+                    score += 0.5  # Wildcard match gets partial credit
+                elif isinstance(expected, list):
+                    if actual in expected:
+                        score += 1.0  # Exact list match
+                    else:
+                        return {"matches": False, "score": 0.0}
+                elif actual == expected:
+                    score += 1.0  # Exact match
+                else:
+                    return {"matches": False, "score": 0.0}
+        
+        return {"matches": True, "score": score}
+    
+    def _matches_temporal_constraints(
+        self, 
+        temporal_context: TemporalContext,
+        constraints: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Check if temporal context matches temporal constraints with scoring
+        """
+        score = 0.0
+        constraints_checked = 0
+        
+        # Situation matching
+        if "situation" in constraints:
+            constraints_checked += 1
+            if temporal_context.situation == constraints["situation"]:
+                score += 1.0
+            else:
+                return {"matches": False, "score": 0.0}
+        
+        # Emergency override requirement
+        if "require_emergency_override" in constraints:
+            constraints_checked += 1
+            required = constraints["require_emergency_override"]
+            if required == temporal_context.emergency_override:
+                score += 1.0
+            else:
+                return {"matches": False, "score": 0.0}
+        
+        # Access window validation
+        if "access_window" in constraints:
+            constraints_checked += 1
+            window = constraints["access_window"]
+            now = temporal_context.timestamp
+            
+            window_valid = True
+            if "start" in window:
+                start_time = datetime.fromisoformat(window["start"])
+                if now < start_time:
+                    window_valid = False
+            
+            if "end" in window:
+                end_time = datetime.fromisoformat(window["end"])
+                if now > end_time:
+                    window_valid = False
+            
+            if window_valid:
+                score += 1.0
+            else:
+                return {"matches": False, "score": 0.0}
+        
+        # If no temporal constraints, give partial credit
+        if constraints_checked == 0:
+            score = 0.5
+        
+        return {"matches": True, "score": score}
+    
+    def _calculate_risk_level(
+        self,
+        request: EnhancedContextualIntegrityTuple,
+        rule: Dict[str, Any]
+    ) -> str:
+        """
+        Calculate risk level based on request and matched rule
+        """
+        risk_factors = []
+        
+        # Check data sensitivity
+        if hasattr(request, 'data_type'):
+            sensitive_data = ["financial", "personal", "health", "security"]
+            if any(sensitive in request.data_type.lower() for sensitive in sensitive_data):
+                risk_factors.append("sensitive_data")
+        
+        # Check time factors
+        if not request.temporal_context.business_hours:
+            risk_factors.append("after_hours")
+        
+        if request.temporal_context.emergency_override:
+            risk_factors.append("emergency_context")
+        
+        # Check rule action
+        if rule.get("action") == "ALLOW":
+            risk_factors.append("permissive_rule")
+        
+        # Calculate risk level
+        risk_count = len(risk_factors)
+        if risk_count >= 3:
+            return "high"
+        elif risk_count >= 2:
+            return "medium"
+        else:
+            return "low"

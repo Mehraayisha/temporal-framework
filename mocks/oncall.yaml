@@ -1,0 +1,152 @@
+services:
+  billing:
+    oncall:
+      - alice@example.com
+      - charlie@example.com
+    timezone: "UTC+05:30"
+    escalation_delay_minutes: 15
+    service_criticality: high
+  
+  support:
+    oncall:
+      - bob@example.com
+      - diana@example.com
+    timezone: "UTC+05:30"
+    escalation_delay_minutes: 10
+    service_criticality: critical
+  
+  authentication:
+    oncall:
+      - eve@example.com
+      - frank@example.com
+    timezone: "UTC+00:00"
+    escalation_delay_minutes: 5
+    service_criticality: critical
+  
+  user-data:
+    oncall:
+      - grace@example.com
+      - henry@example.com
+    timezone: "UTC-08:00"
+    escalation_delay_minutes: 20
+    service_criticality: high
+  
+  analytics:
+    oncall:
+      - iris@example.com
+      - jack@example.com
+    timezone: "UTC+01:00"
+    escalation_delay_minutes: 30
+    service_criticality: medium
+  
+  payments:
+    oncall:
+      - karen@example.com
+      - liam@example.com
+    timezone: "UTC+05:30"
+    escalation_delay_minutes: 10
+    service_criticality: critical
+  
+  notifications:
+    oncall:
+      - maya@example.com
+      - noah@example.com
+    timezone: "UTC-05:00"
+    escalation_delay_minutes: 25
+    service_criticality: medium
+  
+  api-gateway:
+    oncall:
+      - olivia@example.com
+      - peter@example.com
+    timezone: "UTC+00:00"
+    escalation_delay_minutes: 8
+    service_criticality: critical
+  
+  database:
+    oncall:
+      - quinn@example.com
+      - rachel@example.com
+    timezone: "UTC+02:00"
+    escalation_delay_minutes: 12
+    service_criticality: critical
+  
+  monitoring:
+    oncall:
+      - sam@example.com
+      - tina@example.com
+    timezone: "UTC+05:30"
+    escalation_delay_minutes: 15
+    service_criticality: high
+  
+  security:
+    oncall:
+      - uma@example.com
+      - victor@example.com
+    timezone: "UTC+00:00"
+    escalation_delay_minutes: 5
+    service_criticality: critical
+  
+  logging:
+    oncall:
+      - wendy@example.com
+      - xander@example.com
+    timezone: "UTC-08:00"
+    escalation_delay_minutes: 20
+    service_criticality: medium
+  
+  ml-pipeline:
+    oncall:
+      - yara@example.com
+      - zoe@example.com
+    timezone: "UTC+08:00"
+    escalation_delay_minutes: 45
+    service_criticality: low
+  
+  content-delivery:
+    oncall:
+      - alex@example.com
+      - blake@example.com
+    timezone: "UTC-03:00"
+    escalation_delay_minutes: 18
+    service_criticality: medium
+  
+  search:
+    oncall:
+      - casey@example.com
+      - drew@example.com
+    timezone: "UTC+09:00"
+    escalation_delay_minutes: 25
+    service_criticality: medium
+
+business_hours:
+  start_hour: 9
+  end_hour: 17
+  weekend_support:
+    critical_only: true
+    reduced_hours:
+      start_hour: 10
+      end_hour: 16
+
+global_policies:
+  max_escalation_levels: 3
+  follow_sun_rotation: true
+  emergency_bypass_roles:
+    - security
+    - api-gateway
+    - database
+  temporal_access_windows:
+    critical: "24x7"
+    high: "business_hours_extended"
+    medium: "business_hours"
+    low: "business_hours_strict"
+
+timezone_coverage:
+  primary_regions:
+    - "UTC+05:30"
+    - "UTC+00:00"
+    - "UTC-08:00"
+  follow_sun_schedule:
+    apac_shift: "UTC+08:00"
+    emea_shift: "UTC+01:00"
+    americas_shift: "UTC-05:00"

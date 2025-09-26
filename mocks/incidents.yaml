@@ -1,0 +1,290 @@
+incidents:
+  - id: "INC-2024-001"
+    service: authentication
+    severity: critical
+    status: resolved
+    created_at: "2024-09-20T14:30:00Z"
+    resolved_at: "2024-09-20T15:45:00Z"
+    assignee: eve@example.com
+    escalated_to:
+      - frank@example.com
+    description: "OAuth service returning 500 errors"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+00:00"
+      duration_minutes: 75
+      escalation_count: 1
+  
+  - id: "INC-2024-002"
+    service: payments
+    severity: critical
+    status: investigating
+    created_at: "2024-09-26T03:15:00Z"
+    resolved_at: null
+    assignee: karen@example.com
+    escalated_to: []
+    description: "Payment processing failures for EU customers"
+    temporal_context:
+      business_hours_impact: false
+      weekend_occurrence: false
+      timezone_affected: "UTC+05:30"
+      duration_minutes: null
+      escalation_count: 0
+  
+  - id: "INC-2024-003"
+    service: database
+    severity: high
+    status: resolved
+    created_at: "2024-09-25T22:00:00Z"
+    resolved_at: "2024-09-26T01:30:00Z"
+    assignee: quinn@example.com
+    escalated_to:
+      - rachel@example.com
+    description: "Database connection pool exhaustion"
+    temporal_context:
+      business_hours_impact: false
+      weekend_occurrence: false
+      timezone_affected: "UTC+02:00"
+      duration_minutes: 210
+      escalation_count: 1
+  
+  - id: "INC-2024-004"
+    service: api-gateway
+    severity: critical
+    status: resolved
+    created_at: "2024-09-24T09:45:00Z"
+    resolved_at: "2024-09-24T10:20:00Z"
+    assignee: olivia@example.com
+    escalated_to: []
+    description: "Rate limiting service malfunction causing 429s"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+00:00"
+      duration_minutes: 35
+      escalation_count: 0
+  
+  - id: "INC-2024-005"
+    service: user-data
+    severity: medium
+    status: resolved
+    created_at: "2024-09-23T16:30:00Z"
+    resolved_at: "2024-09-23T18:15:00Z"
+    assignee: grace@example.com
+    escalated_to: []
+    description: "User profile sync delays"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC-08:00"
+      duration_minutes: 105
+      escalation_count: 0
+  
+  - id: "INC-2024-006"
+    service: security
+    severity: critical
+    status: resolved
+    created_at: "2024-09-22T11:20:00Z"
+    resolved_at: "2024-09-22T11:50:00Z"
+    assignee: uma@example.com
+    escalated_to:
+      - victor@example.com
+    description: "Suspicious login attempts detected"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+00:00"
+      duration_minutes: 30
+      escalation_count: 1
+  
+  - id: "INC-2024-007"
+    service: notifications
+    severity: medium
+    status: investigating
+    created_at: "2024-09-26T07:00:00Z"
+    resolved_at: null
+    assignee: maya@example.com
+    escalated_to: []
+    description: "Email delivery delays for password resets"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC-05:00"
+      duration_minutes: null
+      escalation_count: 0
+  
+  - id: "INC-2024-008"
+    service: monitoring
+    severity: high
+    status: resolved
+    created_at: "2024-09-21T13:45:00Z"
+    resolved_at: "2024-09-21T15:30:00Z"
+    assignee: sam@example.com
+    escalated_to:
+      - tina@example.com
+    description: "Metrics collection service down"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+05:30"
+      duration_minutes: 105
+      escalation_count: 1
+  
+  - id: "INC-2024-009"
+    service: analytics
+    severity: low
+    status: resolved
+    created_at: "2024-09-20T20:15:00Z"
+    resolved_at: "2024-09-21T09:00:00Z"
+    assignee: iris@example.com
+    escalated_to: []
+    description: "Dashboard refresh performance degradation"
+    temporal_context:
+      business_hours_impact: false
+      weekend_occurrence: true
+      timezone_affected: "UTC+01:00"
+      duration_minutes: 765
+      escalation_count: 0
+  
+  - id: "INC-2024-010"
+    service: billing
+    severity: high
+    status: resolved
+    created_at: "2024-09-19T08:30:00Z"
+    resolved_at: "2024-09-19T11:45:00Z"
+    assignee: alice@example.com
+    escalated_to:
+      - charlie@example.com
+    description: "Invoice generation job failures"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+05:30"
+      duration_minutes: 195
+      escalation_count: 1
+  
+  - id: "INC-2024-011"
+    service: support
+    severity: medium
+    status: resolved
+    created_at: "2024-09-18T14:20:00Z"
+    resolved_at: "2024-09-18T16:45:00Z"
+    assignee: bob@example.com
+    escalated_to: []
+    description: "Ticket creation API intermittent failures"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+05:30"
+      duration_minutes: 145
+      escalation_count: 0
+  
+  - id: "INC-2024-012"
+    service: content-delivery
+    severity: medium
+    status: resolved
+    created_at: "2024-09-17T23:30:00Z"
+    resolved_at: "2024-09-18T02:15:00Z"
+    assignee: alex@example.com
+    escalated_to:
+      - blake@example.com
+    description: "CDN cache hit ratio degradation"
+    temporal_context:
+      business_hours_impact: false
+      weekend_occurrence: false
+      timezone_affected: "UTC-03:00"
+      duration_minutes: 165
+      escalation_count: 1
+  
+  - id: "INC-2024-013"
+    service: search
+    severity: low
+    status: resolved
+    created_at: "2024-09-16T10:00:00Z"
+    resolved_at: "2024-09-16T14:30:00Z"
+    assignee: casey@example.com
+    escalated_to: []
+    description: "Search index rebuild performance issues"
+    temporal_context:
+      business_hours_impact: true
+      weekend_occurrence: false
+      timezone_affected: "UTC+09:00"
+      duration_minutes: 270
+      escalation_count: 0
+  
+  - id: "INC-2024-014"
+    service: ml-pipeline
+    severity: low
+    status: investigating
+    created_at: "2024-09-26T02:45:00Z"
+    resolved_at: null
+    assignee: yara@example.com
+    escalated_to: []
+    description: "Model training job queue backlog"
+    temporal_context:
+      business_hours_impact: false
+      weekend_occurrence: false
+      timezone_affected: "UTC+08:00"
+      duration_minutes: null
+      escalation_count: 0
+  
+  - id: "INC-2024-015"
+    service: logging
+    severity: medium
+    status: resolved
+    created_at: "2024-09-15T19:15:00Z"
+    resolved_at: "2024-09-15T21:00:00Z"
+    assignee: wendy@example.com
+    escalated_to: []
+    description: "Log aggregation service memory leak"
+    temporal_context:
+      business_hours_impact: false
+      weekend_occurrence: true
+      timezone_affected: "UTC-08:00"
+      duration_minutes: 105
+      escalation_count: 0
+
+incident_patterns:
+  peak_hours:
+    business_hours_percentage: 67
+    weekend_percentage: 13
+    night_shift_percentage: 20
+  
+  service_reliability:
+    critical_services_mttr_minutes: 45
+    high_priority_mttr_minutes: 120
+    medium_priority_mttr_minutes: 180
+    low_priority_mttr_minutes: 360
+  
+  escalation_triggers:
+    time_based:
+      critical: 15
+      high: 30
+      medium: 60
+      low: 120
+    severity_based:
+      auto_escalate_critical: true
+      weekend_escalation_delay_multiplier: 1.5
+
+temporal_policies:
+  access_windows:
+    incident_data:
+      retention_days: 90
+      anonymization_after_days: 365
+      full_deletion_after_days: 2555
+    oncall_context:
+      current_shift_access: full
+      previous_shift_access: read_only
+      off_duty_access: emergency_only
+  
+  escalation_rules:
+    business_hours:
+      immediate_escalation_minutes: 15
+      follow_up_escalation_minutes: 30
+    after_hours:
+      immediate_escalation_minutes: 10
+      follow_up_escalation_minutes: 20
+    weekend:
+      critical_only: true
+      escalation_delay_multiplier: 2.0
