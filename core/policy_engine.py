@@ -1,5 +1,5 @@
 # core/policy_engine.py
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 from core.tuples import EnhancedContextualIntegrityTuple, TemporalContext
 import yaml
@@ -58,7 +58,7 @@ class TemporalPolicyEngine:
             result["decision"] = "ALLOW"
             result["reasons"].append("Emergency override active")
             result["expires_at"] = (
-                datetime.utcnow() + timedelta(hours=4)
+                datetime.now(timezone.utc) + timedelta(hours=4)
             ).isoformat()
             result["confidence_score"] = 0.9
             result["risk_level"] = "medium"
@@ -99,7 +99,7 @@ class TemporalPolicyEngine:
                 else:
                     # Default 8-hour expiration for matched policies
                     result["expires_at"] = (
-                        datetime.utcnow() + timedelta(hours=8)
+                        datetime.now(timezone.utc) + timedelta(hours=8)
                     ).isoformat()
         
         # Default deny with comprehensive reasons
@@ -114,7 +114,7 @@ class TemporalPolicyEngine:
         
         # Set next review time
         result["next_review"] = (
-            datetime.utcnow() + timedelta(hours=1)
+            datetime.now(timezone.utc) + timedelta(hours=1)
         ).isoformat()
         
         return result
@@ -183,7 +183,7 @@ class TemporalPolicyEngine:
             return {
                 "allowed": True,
                 "reasons": [f"Service {service} has emergency bypass authorization"],
-                "expires_at": (datetime.utcnow() + timedelta(hours=2)).isoformat()
+                "expires_at": (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()
             }
         
         # Check for critical service during incident
@@ -193,7 +193,7 @@ class TemporalPolicyEngine:
             return {
                 "allowed": True,
                 "reasons": ["Critical service during active incident"],
-                "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat()
+                "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
             }
         
         return {"allowed": False, "reasons": []}
