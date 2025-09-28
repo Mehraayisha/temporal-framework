@@ -10,10 +10,113 @@ class TemporalPolicyEngine:
     Core engine for evaluating temporal policies based on the 6-tuple framework
     """
     
-    def __init__(self):
-        self.rules_file = Path(__file__).parent.parent / "mocks" / "rules.yaml"
-        self.oncall_file = Path(__file__).parent.parent / "mocks" / "oncall.yaml"
-        self.incidents_file = Path(__file__).parent.parent / "mocks" / "incidents.yaml"
+    def __init__(self, config_file: str = "mocks/rules.yaml", neo4j_manager=None, graphiti_manager=None):
+        """Initialize PolicyEngine with YAML config file and optional Neo4j or Graphiti manager."""
+        self.config_file = config_file
+        self.neo4j_manager = neo4j_manager
+        self.graphiti_manager = graphiti_manager
+        
+        # Set up file paths for YAML fallback
+        self.rules_file = config_file
+        self.oncall_file = "mocks/oncall.yaml"
+        self.incidents_file = "mocks/incidents.yaml"
+        
+        # Set up data source preferences
+        self.use_neo4j = neo4j_manager is not None
+        self.use_graphiti = graphiti_manager is not None
+        
+        self.rules = self._load_rules()
+    
+    def _load_rules(self):
+        """Load rules from Graphiti, Neo4j or YAML file."""
+        if self.graphiti_manager:
+            try:
+                return self._load_rules_from_graphiti()
+            except Exception as e:
+                print(f"Failed to load rules from Graphiti: {e}")
+                print("Falling back to YAML file...")
+        elif self.neo4j_manager:
+            try:
+                return self._load_rules_from_neo4j()
+            except Exception as e:
+                print(f"Failed to load rules from Neo4j: {e}")
+                print("Falling back to YAML file...")
+        
+        return self._load_yaml_data()[0]  # Return just rules from YAML
+    
+    def _load_rules_from_graphiti(self) -> List[Dict[str, Any]]:
+        """Load policy rules from Graphiti knowledge graph"""
+        try:
+            # Search for policy rule entities
+            rule_entities = self.graphiti_manager.search_entities(
+                entity_type="PolicyRule",
+                filters={"team": "llm_security"}
+            )
+            
+            rules = []
+            for entity in rule_entities:
+                # Convert Graphiti entity to rule dictionary
+                rule_dict = self._convert_graphiti_rule_to_dict(entity)
+                rules.append(rule_dict)
+            
+            # Sort by priority and creation time
+            rules.sort(key=lambda r: (r.get("priority", 100), r.get("created_at", "")))
+            
+            return rules if rules else self._load_yaml_data()[0]  # Fallback to YAML
+        except Exception as e:
+            print(f"Error loading rules from Graphiti: {e}")
+            return self._load_yaml_data()[0]  # Fallback to YAML
+    
+    def _convert_graphiti_rule_to_dict(self, graphiti_entity) -> Dict[str, Any]:
+        """Convert Graphiti entity format to expected dictionary format"""
+        props = graphiti_entity.get("properties", {})
+        
+        return {
+            "id": props.get("rule_id", props.get("id")),
+            "action": props.get("action", "DENY"),
+            "tuples": {
+                "data_type": props.get("data_type"),
+                "data_sender": props.get("data_sender"),
+                "data_recipient": props.get("data_recipient"),
+                "transmission_principle": props.get("transmission_principle")
+            },
+            "temporal_context": {
+                "situation": props.get("situation"),
+                "require_emergency_override": props.get("require_emergency_override", False),
+                "access_window": props.get("access_window")
+            },
+            "priority": props.get("priority", 100),
+            "created_at": props.get("created_at")
+        }
+    
+    def save_rule_to_graphiti(self, rule: Dict[str, Any]) -> str:
+        """Save a policy rule to Graphiti knowledge graph"""
+        if not self.graphiti_manager:
+            raise ValueError("Graphiti manager not configured")
+        
+        # Extract rule components
+        tuples = rule.get("tuples", {})
+        temporal_context = rule.get("temporal_context", {})
+        
+        # Create PolicyRule entity
+        entity_id = self.graphiti_manager.create_entity(
+            entity_type="PolicyRule",
+            properties={
+                "rule_id": rule.get("id"),
+                "action": rule.get("action", "DENY"),
+                "data_type": tuples.get("data_type"),
+                "data_sender": tuples.get("data_sender"),
+                "data_recipient": tuples.get("data_recipient"),
+                "transmission_principle": tuples.get("transmission_principle"),
+                "situation": temporal_context.get("situation"),
+                "require_emergency_override": temporal_context.get("require_emergency_override", False),
+                "access_window": temporal_context.get("access_window"),
+                "priority": rule.get("priority", 100),
+                "team": "llm_security"
+            }
+        )
+        
+        return entity_id
     
     def evaluate_temporal_access(
         self, 
@@ -34,16 +137,18 @@ class TemporalPolicyEngine:
             "risk_level": "high"
         }
         
-        # Load temporal policies
-        with open(self.rules_file, 'r') as f:
-            rules_data = yaml.safe_load(f)
-            rules = rules_data.get("rules", [])
-        
-        with open(self.oncall_file, 'r') as f:
-            oncall_data = yaml.safe_load(f)
-        
-        with open(self.incidents_file, 'r') as f:
-            incidents_data = yaml.safe_load(f)
+        # Load temporal policies (Neo4j first, YAML fallback)
+        if self.use_neo4j:
+            try:
+                rules = self._load_rules_from_neo4j()
+                oncall_data = self._load_oncall_data_from_neo4j()
+                incidents_data = self._load_incidents_from_neo4j()
+            except Exception as e:
+                # Fallback to YAML if Neo4j fails
+                print(f"Warning: Neo4j load failed, using YAML fallback: {e}")
+                rules, oncall_data, incidents_data = self._load_yaml_data()
+        else:
+            rules, oncall_data, incidents_data = self._load_yaml_data()
         
         # Evaluate temporal context
         temporal_eval = self._evaluate_temporal_context(
@@ -323,6 +428,161 @@ class TemporalPolicyEngine:
             score = 0.5
         
         return {"matches": True, "score": score}
+    
+    def _load_yaml_data(self) -> tuple:
+        """Load data from YAML files (fallback method)"""
+        with open(self.rules_file, 'r') as f:
+            rules_data = yaml.safe_load(f)
+            rules = rules_data.get("rules", [])
+        
+        with open(self.oncall_file, 'r') as f:
+            oncall_data = yaml.safe_load(f)
+        
+        with open(self.incidents_file, 'r') as f:
+            incidents_data = yaml.safe_load(f)
+            
+        return rules, oncall_data, incidents_data
+    
+    def _load_rules_from_neo4j(self) -> List[Dict[str, Any]]:
+        """Load policy rules from Neo4j"""
+        with self.neo4j_manager.driver.session() as session:
+            query = """
+            MATCH (rule:PolicyRule {team: 'llm_security'})
+            RETURN rule
+            ORDER BY rule.priority DESC, rule.created_at ASC
+            """
+            
+            rules = []
+            for record in session.run(query):
+                rule_data = dict(record["rule"])
+                # Convert Neo4j properties back to expected format
+                rules.append(self._convert_neo4j_rule_to_dict(rule_data))
+            
+            return rules if rules else self._load_yaml_data()[0]  # Fallback to YAML
+    
+    def _load_oncall_data_from_neo4j(self) -> Dict[str, Any]:
+        """Load oncall configuration from Neo4j"""
+        with self.neo4j_manager.driver.session() as session:
+            # Load services
+            services_query = """
+            MATCH (svc:Service {team: 'llm_security'})
+            RETURN svc
+            """
+            
+            services = {}
+            for record in session.run(services_query):
+                svc_data = dict(record["svc"])
+                services[svc_data.get("name", svc_data["id"])] = {
+                    "oncall": svc_data.get("oncall", []),
+                    "timezone": svc_data.get("timezone", "UTC"),
+                    "escalation_delay_minutes": svc_data.get("escalation_delay_minutes", 30),
+                    "service_criticality": svc_data.get("service_criticality", "medium")
+                }
+            
+            # Load global policies
+            policies_query = """
+            MATCH (policy:GlobalPolicy {team: 'llm_security'})
+            RETURN policy
+            """
+            
+            global_policies = {}
+            business_hours = {"start_hour": 9, "end_hour": 17}
+            
+            for record in session.run(policies_query):
+                policy_data = dict(record["policy"])
+                if policy_data.get("type") == "business_hours":
+                    business_hours = {
+                        "start_hour": policy_data.get("start_hour", 9),
+                        "end_hour": policy_data.get("end_hour", 17),
+                        "weekend_support": policy_data.get("weekend_support", {})
+                    }
+                elif policy_data.get("type") == "global":
+                    global_policies.update(policy_data.get("policies", {}))
+            
+            oncall_data = {
+                "services": services,
+                "business_hours": business_hours,
+                "global_policies": global_policies
+            }
+            
+            return oncall_data if services else self._load_yaml_data()[1]  # Fallback to YAML
+    
+    def _load_incidents_from_neo4j(self) -> Dict[str, Any]:
+        """Load incident data from Neo4j"""
+        with self.neo4j_manager.driver.session() as session:
+            query = """
+            MATCH (inc:Incident {team: 'llm_security'})
+            RETURN inc
+            ORDER BY inc.created_at DESC
+            """
+            
+            incidents = []
+            for record in session.run(query):
+                inc_data = dict(record["inc"])
+                incidents.append(inc_data)
+            
+            return {"incidents": incidents} if incidents else self._load_yaml_data()[2]  # Fallback to YAML
+    
+    def _convert_neo4j_rule_to_dict(self, neo4j_rule: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert Neo4j rule format to expected dictionary format"""
+        return {
+            "id": neo4j_rule.get("rule_id", neo4j_rule.get("id")),
+            "action": neo4j_rule.get("action", "DENY"),
+            "tuples": {
+                "data_type": neo4j_rule.get("data_type"),
+                "data_sender": neo4j_rule.get("data_sender"),
+                "data_recipient": neo4j_rule.get("data_recipient"),
+                "transmission_principle": neo4j_rule.get("transmission_principle")
+            },
+            "temporal_context": {
+                "situation": neo4j_rule.get("situation"),
+                "require_emergency_override": neo4j_rule.get("require_emergency_override", False),
+                "access_window": neo4j_rule.get("access_window")
+            }
+        }
+    
+    def save_rule_to_neo4j(self, rule: Dict[str, Any]) -> str:
+        """Save a policy rule to Neo4j"""
+        if not self.neo4j_manager:
+            raise ValueError("Neo4j manager not configured")
+        
+        with self.neo4j_manager.driver.session() as session:
+            query = """
+            CREATE (rule:PolicyRule {
+                rule_id: $rule_id,
+                action: $action,
+                data_type: $data_type,
+                data_sender: $data_sender,
+                data_recipient: $data_recipient,
+                transmission_principle: $transmission_principle,
+                situation: $situation,
+                require_emergency_override: $require_emergency_override,
+                access_window: $access_window,
+                priority: $priority,
+                team: 'llm_security',
+                created_at: datetime(),
+                updated_at: datetime()
+            })
+            RETURN rule.rule_id as rule_id
+            """
+            
+            tuples = rule.get("tuples", {})
+            temporal_context = rule.get("temporal_context", {})
+            
+            result = session.run(query,
+                rule_id=rule.get("id"),
+                action=rule.get("action", "DENY"),
+                data_type=tuples.get("data_type"),
+                data_sender=tuples.get("data_sender"),
+                data_recipient=tuples.get("data_recipient"),
+                transmission_principle=tuples.get("transmission_principle"),
+                situation=temporal_context.get("situation"),
+                require_emergency_override=temporal_context.get("require_emergency_override", False),
+                access_window=temporal_context.get("access_window"),
+                priority=rule.get("priority", 100)
+            )
+            
+            return result.single()["rule_id"]
     
     def _calculate_risk_level(
         self,

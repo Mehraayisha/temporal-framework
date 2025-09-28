@@ -12,6 +12,8 @@ dependencies = [
     "pytest>=8.4.2",
     "PyYAML>=6.0",
     "python-dateutil>=2.8.0",
+    "neo4j>=5.0.0",
+    "graphiti-core>=0.3.0",
 ]
 
 [project.optional-dependencies]

@@ -1,4 +1,5 @@
 # core/enricher.py
+import logging
 import yaml
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,7 +12,7 @@ def load_yaml(name):
     with open(MOCK_DIR / name, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def enrich_temporal_context(service_name: str, now: datetime = None) -> TemporalContext:
+def enrich_temporal_context(service_name: str, now: datetime = None, neo4j_manager=None, graphiti_manager=None) -> TemporalContext:
     """
     Enhanced temporal context enrichment using YAML data with service-aware logic
     """
@@ -79,7 +80,9 @@ def enrich_temporal_context(service_name: str, now: datetime = None) -> Temporal
             reduced = weekend_support["reduced_hours"]
             business_hours = reduced["start_hour"] <= hour < reduced["end_hour"]
     
-    return TemporalContext(
+    # Create temporal context
+    tc = TemporalContext(
+        service_id=service_name,  # Add service reference for Neo4j
         timestamp=now,
         timezone=service_tz,
         business_hours=business_hours,
@@ -90,3 +93,19 @@ def enrich_temporal_context(service_name: str, now: datetime = None) -> Temporal
         temporal_role=f"oncall_{criticality}",
         event_correlation=f"{service_name}_context_{escalation_delay}min"
     )
+    
+    # Optionally save to Neo4j or Graphiti if manager provided
+    if graphiti_manager:
+        try:
+            tc.save_to_graphiti(graphiti_manager)
+        except Exception as e:
+            # Log error but don't fail the enrichment
+            logging.warning(f"Failed to save TemporalContext to Graphiti: {e}")
+    elif neo4j_manager:
+        try:
+            tc.save_to_neo4j(neo4j_manager)
+        except Exception as e:
+            # Log error but don't fail the enrichment
+            logging.warning(f"Failed to save TemporalContext to Neo4j: {e}")
+    
+    return tc
