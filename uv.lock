@@ -765,6 +765,7 @@ dependencies = [
     { name = "neo4j" },
     { name = "pytest" },
     { name = "python-dateutil" },
+    { name = "python-dotenv" },
     { name = "pyyaml" },
 ]
 
@@ -784,6 +785,7 @@ requires-dist = [
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "python-dateutil", specifier = ">=2.8.0" },
+    { name = "python-dotenv", specifier = ">=1.1.1" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
 provides-extras = ["dev"]

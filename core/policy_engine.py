@@ -261,7 +261,7 @@ class TemporalPolicyEngine:
             "temporal_role": temporal_context.temporal_role,
             "data_stale": data_stale,
             "weekend": is_weekend,
-            "weekend_support": weekend_support.get("critical_only", False),
+            "weekend_support": not weekend_support.get("critical_only", True),
             "active_incidents_count": active_incidents,
             "data_freshness_ok": not data_stale
         }

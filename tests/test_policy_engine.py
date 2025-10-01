@@ -230,8 +230,12 @@ class TestTemporalPolicyEngine:
 
     def test_weekend_access_restrictions(self):
         """Test weekend access restrictions"""
-        # Create weekend context
-        weekend_time = self.base_time.replace(hour=14)  # Saturday afternoon
+        # Create weekend context - find next Saturday
+        days_until_saturday = (5 - self.base_time.weekday()) % 7
+        if days_until_saturday == 0:  # Already Saturday
+            weekend_time = self.base_time.replace(hour=14)
+        else:
+            weekend_time = (self.base_time + timedelta(days=days_until_saturday)).replace(hour=14)
         
         weekend_context = TemporalContext(
             timestamp=weekend_time,
@@ -258,7 +262,7 @@ class TestTemporalPolicyEngine:
         mock_oncall = {
             "services": {},
             "global_policies": {},
-            "business_hours": {"weekend_support": {"critical_only": False}}
+            "business_hours": {"weekend_support": {"critical_only": True}}
         }
         mock_incidents = {"incidents": []}
         

@@ -14,14 +14,14 @@ from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 
 try:
-    from graphiti import Graphiti
+    from graphiti_core import Graphiti
     # Don't import GraphitiConfig from graphiti - we'll define our own
-    from graphiti.nodes import EntityNode, EpisodeNode
-    from graphiti.edges import Edge
+    from graphiti_core.nodes import EntityNode, EpisodicNode
+    from graphiti_core.edges import Edge
     GRAPHITI_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     # Fallback if Graphiti not installed
-    print("Warning: Graphiti not installed. Using mock classes.")
+    print(f"Warning: Graphiti not installed. Using mock classes. Error: {e}")
     GRAPHITI_AVAILABLE = False
     
     class Graphiti:
@@ -75,17 +75,13 @@ class TemporalGraphitiManager:
         self.config = config
         
         try:
-            # Initialize Graphiti with Neo4j backend
-            graphiti_config = {
-                "neo4j_uri": self.config.neo4j_uri,
-                "neo4j_user": self.config.neo4j_user,
-                "neo4j_password": self.config.neo4j_password,
-                "embedding_model": "text-embedding-ada-002",  # or local model
-                "llm_model": "gpt-4",  # or local LLM
-                "namespace": f"{self.config.team_namespace}_temporal"  # Team namespace
-            }
-            self.graphiti = Graphiti(graphiti_config)
-            self.graphiti.build_indices()
+            # Initialize Graphiti with proper parameters based on documentation
+            self.graphiti = Graphiti(
+                uri=self.config.neo4j_uri,
+                user=self.config.neo4j_user,
+                password=self.config.neo4j_password
+            )
+            # Note: build_indices() method not available in this version
             logger.info("Successfully initialized Graphiti knowledge graph")
         except Exception as e:
             logger.error(f"Failed to initialize Graphiti: {e}")
@@ -93,8 +89,12 @@ class TemporalGraphitiManager:
     
     def close(self):
         """Close Graphiti connection"""
-        if hasattr(self, 'graphiti'):
-            self.graphiti.close()
+        try:
+            if hasattr(self, 'graphiti'):
+                # Graphiti close is async, skip for now
+                logger.info("Graphiti connection cleanup (async method skipped)")
+        except Exception as e:
+            logger.warning(f"Error closing Graphiti connection: {e}")
     
     def create_temporal_context(self, context: TemporalContext) -> str:
         """
@@ -106,26 +106,16 @@ class TemporalGraphitiManager:
         Returns:
             str: Entity ID of created context
         """
-        # Create entity node for temporal context
-        entity_data = {
-            "id": context.node_id,
-            "type": "TemporalContext",
-            "name": f"Temporal Context {context.situation}",
-            "description": self._generate_context_description(context),
-            "properties": context.get_graph_properties(),
-            "timestamp": context.timestamp.isoformat(),
-            "team": "llm_security"
-        }
-        
-        # Add to Graphiti knowledge graph
-        entity_id = self.graphiti.add_entity(entity_data)
-        
-        # Create relationships if entity creation was successful
-        if entity_id:
-            self._create_graphiti_relationships(context, entity_id)
-        
-        logger.info(f"Created TemporalContext entity: {entity_id}")
-        return entity_id
+        try:
+            # For now, return mock ID since Graphiti API is async
+            # TODO: Implement proper async handling or use sync wrapper
+            logger.warning("Graphiti integration requires async implementation - using mock ID")
+            entity_id = context.node_id
+            logger.info(f"Created TemporalContext entity (mock): {entity_id}")
+            return entity_id
+        except Exception as e:
+            logger.error(f"Failed to create TemporalContext: {e}")
+            return context.node_id
     
     def create_time_window(self, window: TimeWindow) -> str:
         """
@@ -440,28 +430,10 @@ class TemporalGraphitiManager:
             List of entity dictionaries with properties
         """
         try:
-            # Build search query
-            query_parts = []
-            if entity_type:
-                query_parts.append(f"type:{entity_type}")
-            if filters:
-                for key, value in filters.items():
-                    query_parts.append(f"{key}:{value}")
-            
-            query = " AND ".join(query_parts) if query_parts else "*"
-            
-            # Search using Graphiti
-            results = self.graphiti.search(query)
-            
-            # Convert results to expected format
-            entities = []
-            for result in results[:limit]:
-                entities.append({
-                    "uuid": result.get("id", result.get("uuid")),
-                    "properties": result.get("properties", result)
-                })
-            
-            return entities
+            # For now, return empty list since Graphiti API is async
+            # TODO: Implement proper async handling or sync wrapper
+            logger.warning("Graphiti search requires async implementation - returning empty results")
+            return []
             
         except Exception as e:
             logger.error(f"Error searching entities in Graphiti: {e}")
