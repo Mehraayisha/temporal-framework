@@ -201,3 +201,41 @@ run.ps1
 run.bat
 # Dev tools
 .python-version
+
+# Additional local/temp/editor files (safe to ignore)
+# Pytest cache and test artifacts
+.pytest_cache/
+.tox/
+
+# MyPy cache
+.mypy_cache/
+
+# Python virtual environments (redundant entries consolidated)
+.venv/
+venv/
+
+# Editor/workspace
+.vscode/
+.vscode/*.code-workspace
+.idea/
+.vs/
+*.iml
+
+# Shell/history
+.python_history
+.ipynb_checkpoints/
+
+# Local config overrides
+.env.local
+.env.*.local
+
+# temporary files
+.cache/
+*.tmp
+*.temp
+*_cache/
+
+# database / sqlite variants
+*.sqlite3
+*.db-journal
+
