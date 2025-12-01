@@ -181,3 +181,22 @@ benchmarks/
 docs/*.pdf
 reports/*.pdf
 documentation/*.pdf
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+.env
+venv/
+env/
+
+# OS files
+.DS_Store
+
+# Locks
+*.lock
+
+# Dev tools
+.python-version
