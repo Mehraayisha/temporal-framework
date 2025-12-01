@@ -1,0 +1,54 @@
+[
+  {
+    "request_id": "req-critical-001",
+    "data_subject": "patient_heart_rate",
+    "data_sender": "system",
+    "data_recipient": "emergency_doctor",
+    "data_type": "HealthData.VitalSigns",
+    "transmission_principle": "secure",
+    "temporal_context": {
+      "situation": "EMERGENCY",
+      "urgency_level": "critical",
+      "temporal_role": "oncall_critical",
+      "emergency_override": true,
+      "emergency_authorization_id": "auth-789",
+      "access_window": {"start": "2025-11-05T14:00:00Z", "end": "2025-11-05T15:00:00Z"},
+      "timestamp": "2025-11-05T14:00:00Z",
+      "timezone": "UTC"
+    }
+  },
+  {
+    "request_id": "req-normal-002",
+    "data_subject": "employee_directory",
+    "data_sender": "system",
+    "data_recipient": "hr_manager",
+    "data_type": "PublicData.Directory",
+    "transmission_principle": "secure",
+    "temporal_context": {
+      "situation": "NORMAL",
+      "urgency_level": "normal",
+      "temporal_role": "user",
+      "emergency_override": false,
+      "access_window": {"start": "2025-11-05T09:00:00Z", "end": "2025-11-05T17:00:00Z"},
+      "timestamp": "2025-11-05T10:00:00Z",
+      "timezone": "UTC"
+    }
+  },
+  {
+    "request_id": "req-low-003",
+    "data_subject": "quarterly_revenue_reports",
+    "data_sender": "system",
+    "data_recipient": "temporary_contractor",
+    "data_type": "FinancialData.Revenue",
+    "transmission_principle": "insecure",
+    "temporal_context": {
+      "situation": "NORMAL",
+      "urgency_level": "low",
+      "temporal_role": "user",
+      "emergency_override": false,
+      "access_window": {"start": "2025-11-05T08:00:00Z", "end": "2025-11-05T18:00:00Z"},
+      "timestamp": "2025-11-05T11:00:00Z",
+      "timezone": "UTC"
+    }
+  }
+]

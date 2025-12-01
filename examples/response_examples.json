@@ -1,0 +1,41 @@
+[
+  {
+    "request_id": "req-critical-001",
+    "decision": "ALLOW",
+    "decision_id": "dec-uuid-001",
+    "evaluation_timestamp": "2025-11-05T14:00:00Z",
+    "confidence": 0.8,
+    "reasoning": "emergency override verified",
+    "policy_rule_matched": "emergency_access_01",
+    "emergency_override": true,
+    "urgency_level": "critical",
+    "time_window_valid": true,
+    "audit_required": true
+  },
+  {
+    "request_id": "req-normal-002",
+    "decision": "DENY",
+    "decision_id": "dec-uuid-002",
+    "evaluation_timestamp": "2025-11-05T10:00:00Z",
+    "confidence": 0.5,
+    "reasoning": "policy: hr_restrictions",
+    "policy_rule_matched": "hr_policy_04",
+    "emergency_override": false,
+    "urgency_level": "normal",
+    "time_window_valid": true,
+    "audit_required": false
+  },
+  {
+    "request_id": "req-low-003",
+    "decision": "DENY",
+    "decision_id": "dec-uuid-003",
+    "evaluation_timestamp": "2025-11-05T11:00:00Z",
+    "confidence": 0.5,
+    "reasoning": "insufficient privilege / insecure transmission",
+    "policy_rule_matched": "deny_insecure_transfer",
+    "emergency_override": false,
+    "urgency_level": "low",
+    "time_window_valid": true,
+    "audit_required": false
+  }
+]
