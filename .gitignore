@@ -197,6 +197,7 @@ env/
 
 # Locks
 *.lock
-
+run.ps1
+run.bat
 # Dev tools
 .python-version
