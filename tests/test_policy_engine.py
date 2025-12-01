@@ -50,10 +50,10 @@ class TestTemporalPolicyEngine:
             timezone="UTC",
             business_hours=False,  # Even outside business hours
             emergency_override=True,  # Emergency active!
-            access_window=TimeWindow(start=self.base_time, end=self.base_time),
+            access_window=TimeWindow(start=self.base_time, end=self.base_time + timedelta(hours=1)),
             data_freshness_seconds=300,
             situation="EMERGENCY",
-            temporal_role="oncall",
+            temporal_role="emergency_responder",
             event_correlation="incident-123"
         )
         
@@ -129,7 +129,7 @@ class TestTemporalPolicyEngine:
             timezone="UTC", 
             business_hours=False,  # Outside business hours
             emergency_override=False,
-            access_window=TimeWindow(start=self.base_time, end=self.base_time),
+            access_window=TimeWindow(start=self.base_time, end=self.base_time + timedelta(hours=1)),
             data_freshness_seconds=300,
             situation="NORMAL",
             temporal_role="user",
@@ -193,7 +193,7 @@ class TestTemporalPolicyEngine:
             timezone="UTC",
             business_hours=True,
             emergency_override=False,
-            access_window=TimeWindow(start=self.base_time, end=self.base_time),
+            access_window=TimeWindow(start=self.base_time, end=self.base_time + timedelta(hours=1)),
             data_freshness_seconds=7200,  # 2 hours - considered stale
             situation="NORMAL",
             temporal_role="user",
@@ -242,7 +242,7 @@ class TestTemporalPolicyEngine:
             timezone="UTC",
             business_hours=False,
             emergency_override=False,
-            access_window=TimeWindow(start=weekend_time, end=weekend_time),
+            access_window=TimeWindow(start=weekend_time, end=weekend_time + timedelta(hours=1)),
             data_freshness_seconds=300,
             situation="NORMAL",
             temporal_role="user",
@@ -308,10 +308,10 @@ class TestTemporalPolicyEngine:
             timezone="UTC",
             business_hours=False,  # After hours
             emergency_override=True,  # Emergency
-            access_window=TimeWindow(start=self.base_time, end=self.base_time),
+            access_window=TimeWindow(start=self.base_time, end=self.base_time + timedelta(hours=1)),
             data_freshness_seconds=300,
             situation="EMERGENCY",
-            temporal_role="oncall",
+            temporal_role="emergency_responder",
             event_correlation="incident-456"
         )
         

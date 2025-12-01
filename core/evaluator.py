@@ -1,7 +1,10 @@
 # core/evaluator.py
 from datetime import datetime
+import time
 from typing import Any, Dict, List
 from core.tuples import EnhancedContextualIntegrityTuple
+from core import holds
+from core import audit
 import yaml
 from pathlib import Path
 
@@ -102,22 +105,204 @@ def _match_field(value: str, rule_val):
         return value in rule_val
     return value == rule_val
 
+
+def _match_field_fast(value: str, rule_val):
+    # Slightly faster matcher for compiled rules: avoid isinstance checks on hot path
+    if rule_val is None or rule_val == "*":
+        return True
+    # rule_val may be a set for faster membership testing
+    if isinstance(rule_val, set):
+        return value in rule_val
+    if isinstance(rule_val, list):
+        return value in rule_val
+    return value == rule_val
+
+
+def compile_rules(rules: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Compile rules into a faster-invocation structure.
+
+    - Converts access_window ISO strings into TimeWindow instances when possible.
+    - Converts list matchers into sets for O(1) membership checks.
+    """
+    compiled = []
+    try:
+        from core.tuples import TimeWindow
+    except Exception:
+        TimeWindow = None
+
+    for r in rules:
+        tconf = r.get("temporal_context", {}) or {}
+        aw = tconf.get("access_window")
+        if aw and TimeWindow and not isinstance(aw, TimeWindow):
+            # Accept dict with ISO strings
+            try:
+                aw = TimeWindow(start=aw.get("start"), end=aw.get("end"))
+            except Exception:
+                aw = None
+
+        tuples = r.get("tuples", {}) or {}
+        # convert list matchers to sets
+        def maybe_set(v):
+            if isinstance(v, list):
+                return set(v)
+            return v
+
+        compiled.append({
+            "id": r.get("id"),
+            "action": r.get("action", "BLOCK"),
+            "data_type": maybe_set(tuples.get("data_type")),
+            "data_sender": maybe_set(tuples.get("data_sender")),
+            "data_recipient": maybe_set(tuples.get("data_recipient")),
+            "transmission_principle": maybe_set(tuples.get("transmission_principle")),
+            "situation": tconf.get("situation"),
+            "require_emergency_override": bool(tconf.get("require_emergency_override", False)),
+            "access_window": aw,
+        })
+    return compiled
+
+
+def evaluate_compiled(request_tuple: EnhancedContextualIntegrityTuple, compiled_rules: List[Dict[str, Any]], neo4j_manager=None, graphiti_manager=None) -> Dict[str, Any]:
+    """Evaluate using pre-compiled rules for lower per-call overhead.
+
+    This is a fast-path alternative to `evaluate` and avoids repeated parsing/lookup costs.
+    """
+    start = time.perf_counter()
+    # Freshness check
+    try:
+        request_tuple.temporal_context.assert_fresh()
+    except RuntimeError:
+        raise
+
+    subj = getattr(request_tuple, 'data_subject', None)
+    svc = getattr(request_tuple.temporal_context, 'service_id', None)
+    try:
+        if subj and holds.is_on_hold('data_subject', subj):
+            out = {"action": "DENY", "matched_rule_id": None, "reasons": ["legal_hold_active"]}
+            try:
+                audit.record_decision(out)
+            except Exception:
+                pass
+            return out
+        if svc and holds.is_on_hold('service', svc):
+            out = {"action": "DENY", "matched_rule_id": None, "reasons": ["legal_hold_active"]}
+            try:
+                audit.record_decision(out)
+            except Exception:
+                pass
+            return out
+    except Exception:
+        pass
+
+    now = request_tuple.temporal_context.timestamp
+
+    for r in compiled_rules:
+        # fast field matching
+        if not _match_field_fast(request_tuple.data_type, r.get("data_type")):
+            continue
+        if not _match_field_fast(request_tuple.data_sender, r.get("data_sender")):
+            continue
+        if not _match_field_fast(request_tuple.data_recipient, r.get("data_recipient")):
+            continue
+
+        # temporal checks
+        if r.get("situation") and r.get("situation") != request_tuple.temporal_context.situation:
+            continue
+        if r.get("require_emergency_override") and not request_tuple.temporal_context.emergency_override:
+            continue
+        aw = r.get("access_window")
+        if aw and not _in_time_window(now, aw):
+            continue
+
+        out = {"action": r.get("action", "BLOCK"), "matched_rule_id": r.get("id"), "reasons": ["matched rule"]}
+        try:
+            audit.record_decision(out)
+        except Exception:
+            pass
+        finally:
+            # record latency for the evaluation
+            try:
+                duration_ms = (time.perf_counter() - start) * 1000.0
+                audit.record_decision_latency(duration_ms)
+            except Exception:
+                pass
+        return out
+
+    out = {"action": "BLOCK", "matched_rule_id": None, "reasons": ["no rule matched"]}
+    try:
+        audit.record_decision(out)
+    except Exception:
+        pass
+    finally:
+        try:
+            duration_ms = (time.perf_counter() - start) * 1000.0
+            audit.record_decision_latency(duration_ms)
+        except Exception:
+            pass
+    return out
+
 def _in_time_window(now: datetime, window: Dict[str, Any]):
+    """Return True if 'now' falls within the window.
+
+    Support window supplied as dict with ISO strings or as a TimeWindow instance.
+    Semantics: start <= now < end when both are present. If start is None -> open start.
+    If end is None -> open end.
+    """
     if not window:
         return True
-    start = window.get("start")
-    end = window.get("end")
-    if start:
-        start_dt = datetime.fromisoformat(start)
-        if now < start_dt:
-            return False
-    if end:
-        end_dt = datetime.fromisoformat(end)
-        if now > end_dt:
-            return False
+
+    # Accept TimeWindow object from core.tuples
+    try:
+        from core.tuples import TimeWindow
+    except Exception:
+        TimeWindow = None
+
+    if TimeWindow and isinstance(window, TimeWindow):
+        start_dt = window.start
+        end_dt = window.end
+    else:
+        # Assume dict-like
+        start = window.get("start")
+        end = window.get("end")
+        start_dt = datetime.fromisoformat(start) if start else None
+        end_dt = datetime.fromisoformat(end) if end else None
+
+    if start_dt and now < start_dt:
+        return False
+    if end_dt and not (now < end_dt):
+        # enforce exclusive end
+        return False
     return True
 
 def evaluate(request_tuple: EnhancedContextualIntegrityTuple, rules=None, neo4j_manager=None, graphiti_manager=None) -> Dict[str, Any]:
+    start = time.perf_counter()
+    # Use current time to validate freshness (not the context timestamp)
+    try:
+        request_tuple.temporal_context.assert_fresh()
+    except RuntimeError:
+        # propagate the error to caller to signal a reload is required
+        raise
+
+    # Legal hold enforcement: block if a legal hold applies to the data subject or the service
+    subj = getattr(request_tuple, 'data_subject', None)
+    svc = getattr(request_tuple.temporal_context, 'service_id', None)
+    try:
+        if subj and holds.is_on_hold('data_subject', subj):
+            out = {"action": "DENY", "matched_rule_id": None, "reasons": ["legal_hold_active"]}
+            try:
+                audit.record_decision(out)
+            except Exception:
+                pass
+            return out
+        if svc and holds.is_on_hold('service', svc):
+            out = {"action": "DENY", "matched_rule_id": None, "reasons": ["legal_hold_active"]}
+            try:
+                audit.record_decision(out)
+            except Exception:
+                pass
+            return out
+    except Exception:
+        # If holds system fails, don't change behavior (fail-open logging)
+        pass
     now = request_tuple.temporal_context.timestamp
     rules = rules if rules is not None else load_rules(neo4j_manager, graphiti_manager)
     reasons = []
@@ -146,6 +331,28 @@ def evaluate(request_tuple: EnhancedContextualIntegrityTuple, rules=None, neo4j_
             continue
 
         # matched
-        return {"action": rule.get("action", "BLOCK"), "matched_rule_id": rule.get("id"), "reasons": ["matched rule"]}
+        out = {"action": rule.get("action", "BLOCK"), "matched_rule_id": rule.get("id"), "reasons": ["matched rule"]}
+        try:
+            audit.record_decision(out)
+        except Exception:
+            pass
+        finally:
+            try:
+                duration_ms = (time.perf_counter() - start) * 1000.0
+                audit.record_decision_latency(duration_ms)
+            except Exception:
+                pass
+        return out
     # default
-    return {"action": "BLOCK", "matched_rule_id": None, "reasons": ["no rule matched"]}
+    out = {"action": "BLOCK", "matched_rule_id": None, "reasons": ["no rule matched"]}
+    try:
+        audit.record_decision(out)
+    except Exception:
+        pass
+    finally:
+        try:
+            duration_ms = (time.perf_counter() - start) * 1000.0
+            audit.record_decision_latency(duration_ms)
+        except Exception:
+            pass
+    return out

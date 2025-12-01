@@ -146,6 +146,10 @@ temporal_audit.log
 *.sqlite
 *.db
 
+# Logs directory
+logs/
+*.log
+
 # Temporary files
 temp/
 tmp/

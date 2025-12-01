@@ -4,6 +4,7 @@ import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 from core.tuples import TemporalContext, TimeWindow
+from core import incidents
 
 MOCK_DIR = Path(__file__).resolve().parent.parent / "mocks"
 
@@ -18,7 +19,7 @@ def enrich_temporal_context(service_name: str, now: datetime = None, neo4j_manag
     """
     now = now or datetime.now(timezone.utc)
     oncall = load_yaml("oncall.yaml")
-    incidents = load_yaml("incidents.yaml")
+    incidents_yaml = load_yaml("incidents.yaml")
     
     # Enhanced business hours detection with timezone awareness
     bh = oncall.get("business_hours", {"start_hour": 9, "end_hour": 17})
@@ -29,11 +30,17 @@ def enrich_temporal_context(service_name: str, now: datetime = None, neo4j_manag
     hour = now.astimezone().hour
     business_hours = bh["start_hour"] <= hour < bh["end_hour"]
     
-    # Check for active incidents (investigating status)
-    emergency_override = any(
-        inc["service"] == service_name and inc["status"] == "investigating" 
-        for inc in incidents.get("incidents", [])
-    )
+    # Check for active incidents (prefer runtime incident registry, fall back to mocks)
+    try:
+        # Prefer runtime incident registry
+        emergency_override = incidents.is_emergency_for_service(service_name)
+    except Exception:
+        # incident registry may not be available in some environments; fall back to mocks
+        emergency_override = any(
+            inc["service"] == service_name and inc["status"] == "investigating"
+            for inc in (incidents_yaml.get("incidents", []) if isinstance(incidents_yaml, dict) else [])
+            if isinstance(inc, dict)
+        )
     
     # Get service criticality for temporal role
     criticality = service_info.get("service_criticality", "medium")
@@ -80,7 +87,16 @@ def enrich_temporal_context(service_name: str, now: datetime = None, neo4j_manag
             reduced = weekend_support["reduced_hours"]
             business_hours = reduced["start_hour"] <= hour < reduced["end_hour"]
     
-    # Create temporal context
+    # Create temporal context. If an incident is active, set an incident-specific temporal role.
+    role = None
+    if emergency_override:
+        try:
+            role = incidents.get_incident_temporal_role_for_service(service_name)
+        except Exception:
+            role = "incident_responder"
+
+    if not role:
+        role = f"oncall_{criticality}"
     tc = TemporalContext(
         service_id=service_name,  # Add service reference for Neo4j
         timestamp=now,
@@ -89,8 +105,8 @@ def enrich_temporal_context(service_name: str, now: datetime = None, neo4j_manag
         emergency_override=emergency_override,
         access_window=access_window,
         data_freshness_seconds=data_freshness_seconds,
-        situation="EMERGENCY" if emergency_override else "NORMAL",
-        temporal_role=f"oncall_{criticality}",
+        situation=("EMERGENCY" if emergency_override else "NORMAL"),
+        temporal_role=role,
         event_correlation=f"{service_name}_context_{escalation_delay}min"
     )
     

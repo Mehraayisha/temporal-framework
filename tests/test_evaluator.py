@@ -22,14 +22,28 @@ def make_tc(now, emergency=False):
 def test_evaluator_no_match_blocks():
     now = datetime.now(timezone.utc)
     tc = make_tc(now, emergency=False)
-    req = EnhancedContextualIntegrityTuple("unknown","s","a","b","tp", tc)
+    req = EnhancedContextualIntegrityTuple(
+        data_type="unknown",
+        data_subject="s",
+        data_sender="a",
+        data_recipient="b",
+        transmission_principle="tp",
+        temporal_context=tc
+    )
     res = evaluate(req, rules=[])  # no rules
     assert res["action"] == "BLOCK"
 
 def test_evaluator_emergency_allows():
     now = datetime.now(timezone.utc)
     tc = make_tc(now, emergency=True)
-    req = EnhancedContextualIntegrityTuple("financial","s","x","oncall-team","tp", tc)
+    req = EnhancedContextualIntegrityTuple(
+        data_type="financial",
+        data_subject="s",
+        data_sender="x",
+        data_recipient="oncall-team",
+        transmission_principle="tp",
+        temporal_context=tc
+    )
     # rule matching inline
     rules = [{
         "id":"EMRG-TEST",
@@ -43,7 +57,14 @@ def test_evaluator_emergency_allows():
 def test_evaluator_time_window_blocks_when_outside():
     now = datetime.now(timezone.utc)
     tc = make_tc(now, emergency=False)
-    req = EnhancedContextualIntegrityTuple("hr","s","a","b","tp", tc)
+    req = EnhancedContextualIntegrityTuple(
+        data_type="hr",
+        data_subject="s",
+        data_sender="a",
+        data_recipient="b",
+        transmission_principle="tp",
+        temporal_context=tc
+    )
     rules = [{
         "id":"TW-1",
         "action":"ALLOW",
@@ -68,12 +89,20 @@ def test_evaluator_with_graphiti():
         team_namespace="llm_security"  
     )
     
+    # Create request outside try block
+    now = datetime.now(timezone.utc)
+    tc = make_tc(now, emergency=True)
+    req = EnhancedContextualIntegrityTuple(
+        data_type="financial",
+        data_subject="account",
+        data_sender="engineer",
+        data_recipient="fraud_service",
+        transmission_principle="emergency",
+        temporal_context=tc
+    )
+    
     try:
         graphiti_manager = TemporalGraphitiManager(config)
-        
-        now = datetime.now(timezone.utc)
-        tc = make_tc(now, emergency=True)
-        req = EnhancedContextualIntegrityTuple("financial","account","engineer","fraud_service","emergency", tc)
         
         # Test evaluation with Graphiti-backed rules
         res = evaluate(req, graphiti_manager=graphiti_manager)
@@ -110,7 +139,14 @@ def test_evaluator_with_mock_graphiti():
     
     now = datetime.now(timezone.utc)
     tc = make_tc(now, emergency=True)
-    req = EnhancedContextualIntegrityTuple("financial","account","engineer","fraud_service","emergency", tc)
+    req = EnhancedContextualIntegrityTuple(
+        data_type="financial",
+        data_subject="account",
+        data_sender="engineer",
+        data_recipient="fraud_service",
+        transmission_principle="emergency",
+        temporal_context=tc
+    )
     
     res = evaluate(req, graphiti_manager=mock_graphiti)
     assert res["action"] == "ALLOW"

@@ -763,6 +763,7 @@ source = { editable = "." }
 dependencies = [
     { name = "graphiti-core" },
     { name = "neo4j" },
+    { name = "pydantic" },
     { name = "pytest" },
     { name = "python-dateutil" },
     { name = "python-dotenv" },
@@ -782,6 +783,7 @@ requires-dist = [
     { name = "flake8", marker = "extra == 'dev'", specifier = ">=6.0.0" },
     { name = "graphiti-core", specifier = ">=0.3.0" },
     { name = "neo4j", specifier = ">=5.0.0" },
+    { name = "pydantic", specifier = ">=2.11.9" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "python-dateutil", specifier = ">=2.8.0" },

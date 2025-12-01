@@ -1,0 +1,407 @@
+name: Temporal Framework CI/CD
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  PYTHON_VERSION: "3.12"
+  UV_VERSION: "0.4.0"
+
+jobs:
+  # Code Quality Checks
+  lint-and-format:
+    name: Code Quality & Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Run Black formatter check
+        run: |
+          uv run black --check --diff core/ tests/ examples/
+
+      - name: Run Ruff linter
+        run: |
+          uv run ruff check core/ tests/ examples/
+
+      - name: Run isort import sorting check
+        run: |
+          uv run isort --check-only --diff core/ tests/ examples/
+
+      - name: Run MyPy type checking
+        run: |
+          uv run mypy core/ tests/
+
+  # Security Scanning
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Run Bandit security linter
+        run: |
+          uv run bandit -r core/ -f json -o bandit-report.json || true
+
+      - name: Run Safety vulnerability check
+        run: |
+          uv run safety check --json --output safety-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # Unit Tests
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.11"]
+    
+    services:
+      neo4j:
+        image: neo4j:5.0
+        env:
+          NEO4J_AUTH: neo4j/testpassword
+          NEO4J_PLUGINS: '["apoc"]'
+        ports:
+          - 7687:7687
+        options: >-
+          --health-cmd "cypher-shell -u neo4j -p testpassword 'RETURN 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Wait for Neo4j
+        run: |
+          timeout 60 bash -c 'until nc -z localhost 7687; do sleep 1; done'
+
+      - name: Run unit tests
+        env:
+          NEO4J_URI: bolt://localhost:7687
+          NEO4J_USER: neo4j
+          NEO4J_PASSWORD: testpassword
+        run: |
+          uv run pytest tests/ -v --cov=core --cov-report=xml --cov-report=term
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # Integration Tests
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, test]
+    
+    services:
+      neo4j:
+        image: neo4j:5.0
+        env:
+          NEO4J_AUTH: neo4j/testpassword
+          NEO4J_PLUGINS: '["apoc"]'
+        ports:
+          - 7687:7687
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Wait for Neo4j
+        run: |
+          timeout 60 bash -c 'until nc -z localhost 7687; do sleep 1; done'
+
+      - name: Run integration tests
+        env:
+          NEO4J_URI: bolt://localhost:7687
+          NEO4J_USER: neo4j
+          NEO4J_PASSWORD: testpassword
+        run: |
+          uv run pytest tests/ -v -m "integration" --tb=short
+
+      - name: Run example scripts
+        env:
+          NEO4J_URI: bolt://localhost:7687
+          NEO4J_USER: neo4j
+          NEO4J_PASSWORD: testpassword
+        run: |
+          uv run python examples/team_onboarding_demo.py
+          # Skip production example as it requires additional setup
+          # uv run python examples/production_integration.py
+
+  # Performance Tests
+  performance-test:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: github.event_name == 'pull_request'
+
+    services:
+      neo4j:
+        image: neo4j:5.0
+        env:
+          NEO4J_AUTH: neo4j/testpassword
+        ports:
+          - 7687:7687
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Wait for Neo4j
+        run: |
+          timeout 60 bash -c 'until nc -z localhost 7687; do sleep 1; done'
+
+      - name: Run performance benchmarks
+        env:
+          NEO4J_URI: bolt://localhost:7687
+          NEO4J_USER: neo4j
+          NEO4J_PASSWORD: testpassword
+        run: |
+          uv run pytest tests/ -v --benchmark-only --benchmark-json=benchmark-results.json
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results
+          path: benchmark-results.json
+
+  # Documentation Build
+  docs-build:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Build documentation
+        run: |
+          # Add Sphinx or MkDocs documentation build here
+          echo "Documentation build placeholder"
+
+      - name: Check README and docs
+        run: |
+          # Validate markdown files
+          uv run python -c "import markdown; markdown.markdown(open('README.md').read())"
+          uv run python -c "import markdown; markdown.markdown(open('CONTRIBUTING.md').read())"
+
+  # Docker Build
+  docker-build:
+    name: Docker Build & Test
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: temporal-framework:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm temporal-framework:test python -c "from core.tuples import EnhancedContextualIntegrityTuple; print('✅ Docker image working')"
+
+  # Release Build
+  release:
+    name: Release Build
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, test, integration-test, security-scan, docker-build]
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+
+      - name: Build package
+        run: |
+          uv build
+
+      - name: Publish to PyPI
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          uv publish --token $PYPI_TOKEN
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            temporalframework/temporal-framework:latest
+            temporalframework/temporal-framework:${{ github.event.release.tag_name }}
+
+      - name: Create release artifacts
+        run: |
+          tar -czf temporal-framework-${{ github.event.release.tag_name }}.tar.gz -C dist .
+
+      - name: Upload release artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./temporal-framework-${{ github.event.release.tag_name }}.tar.gz
+          asset_name: temporal-framework-${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/gzip
+
+  # Deployment to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    environment: staging
+
+    steps:
+      - name: Deploy to staging environment
+        run: |
+          echo "Deploying to staging..."
+          # Add your deployment scripts here
+          # Example: kubectl apply, helm upgrade, etc.
+
+  # Deployment to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    environment: production
+
+    steps:
+      - name: Deploy to production environment
+        run: |
+          echo "Deploying to production..."
+          # Add your production deployment scripts here

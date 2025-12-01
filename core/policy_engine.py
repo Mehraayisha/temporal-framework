@@ -2,6 +2,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 from core.tuples import EnhancedContextualIntegrityTuple, TemporalContext
+from core import holds
+from core import audit
 import yaml
 from pathlib import Path
 
@@ -157,9 +159,41 @@ class TemporalPolicyEngine:
             incidents_data
         )
         result["temporal_factors"] = temporal_eval
+
+        # Legal hold enforcement: highest priority deny
+        try:
+            subj = getattr(request, 'data_subject', None)
+            svc = getattr(request.temporal_context, 'service_id', None)
+            if subj and holds.is_on_hold('data_subject', subj):
+                result["decision"] = "DENY"
+                result["reasons"].append("Legal hold active for data subject")
+                result["audit_required"] = True
+                try:
+                    audit.record_decision(result)
+                except Exception:
+                    pass
+                return result
+            if svc and holds.is_on_hold('service', svc):
+                result["decision"] = "DENY"
+                result["reasons"].append("Legal hold active for service")
+                result["audit_required"] = True
+                try:
+                    audit.record_decision(result)
+                except Exception:
+                    pass
+                return result
+        except Exception:
+            # If holds check fails, continue evaluation (fail-open) but log would be appropriate
+            pass
         
         # Check emergency override first (highest priority)
         if request.temporal_context.emergency_override:
+            # Apply incident-temporal-role derived permissions before returning
+            try:
+                self.apply_temporal_role_permissions(request)
+            except Exception:
+                pass
+
             result["decision"] = "ALLOW"
             result["reasons"].append("Emergency override active")
             result["expires_at"] = (
@@ -167,6 +201,10 @@ class TemporalPolicyEngine:
             ).isoformat()
             result["confidence_score"] = 0.9
             result["risk_level"] = "medium"
+            try:
+                audit.record_decision(result)
+            except Exception:
+                pass
             return result
         
         # Check critical service bypass
@@ -221,7 +259,11 @@ class TemporalPolicyEngine:
         result["next_review"] = (
             datetime.now(timezone.utc) + timedelta(hours=1)
         ).isoformat()
-        
+        try:
+            audit.record_decision(result)
+        except Exception:
+            pass
+
         return result
     
     def _evaluate_temporal_context(
@@ -619,3 +661,43 @@ class TemporalPolicyEngine:
             return "medium"
         else:
             return "low"
+
+    def apply_temporal_role_permissions(self, request: EnhancedContextualIntegrityTuple) -> List[str]:
+        """Apply temporal-role-derived temporary permissions to the request's temporal_context.
+
+        Returns the list of granted permissions.
+        """
+        role = request.temporal_context.temporal_role or ""
+        perms = []
+
+        # Base mappings
+        mappings = {
+            "incident_responder": ["incident_investigation", "system_access_override", "log_analysis"],
+            "security_incident_lead": ["security_override", "evidence_collection", "system_isolation", "incident_investigation"],
+            "acting_supervisor": ["manage_team", "approve_requests"],
+            "acting_manager": ["manage_team", "approve_requests", "access_management_reports"],
+            "oncall_critical": ["emergency_full_hospital_access", "emergency_modify_any_record"],
+        }
+
+        # Allow roles that contain keywords to inherit role families
+        if role in mappings:
+            perms.extend(mappings[role])
+        else:
+            # Keyword-based fallbacks
+            if "incident" in role or "responder" in role:
+                perms.extend(mappings.get("incident_responder", []))
+            if "security" in role and "lead" in role:
+                perms.extend(mappings.get("security_incident_lead", []))
+            if role.startswith("oncall_"):
+                # grant a basic oncall permission based on level
+                perms.append("oncall_basic_access")
+
+        # Deduplicate and attach to temporal_context
+        perms = list(dict.fromkeys(perms))
+        try:
+            request.temporal_context.inherited_permissions = perms
+        except Exception:
+            # pydantic immutability could prevent assignment; set attribute directly
+            setattr(request.temporal_context, "inherited_permissions", perms)
+
+        return perms
