@@ -18,7 +18,6 @@ from core.tuples import TimeWindow, TemporalContext, EnhancedContextualIntegrity
 from core.policy_engine import TemporalPolicyEngine
 from core.evaluator import TemporalEvaluator
 from core.enricher import TemporalEnricher
-from core.neo4j_manager import TemporalNeo4jManager
 from core.graphiti_manager import TemporalGraphitiManager
 from core.logging_config import setup_logging
 
@@ -57,12 +56,10 @@ class ProductionTemporalFramework:
             enable_caching: Enable policy decision caching
             cache_ttl_seconds: Cache time-to-live in seconds
         """
-        self.neo4j_manager = TemporalNeo4jManager(
-            uri=neo4j_uri,
-            user=neo4j_user,
-            password=neo4j_password
-        )
-        
+        # Direct Neo4j manager removed; prefer Graphiti-only integration.
+        # If you need a direct Neo4j connection, create and register it separately.
+        self.neo4j_manager = None
+
         self.graphiti_manager = None
         if graphiti_server_url and graphiti_api_key:
             self.graphiti_manager = TemporalGraphitiManager(
@@ -71,14 +68,14 @@ class ProductionTemporalFramework:
             )
         
         self.enricher = TemporalEnricher(
-            neo4j_manager=self.neo4j_manager,
+            neo4j_manager=None,
             graphiti_manager=self.graphiti_manager,
             enable_caching=enable_caching,
             cache_ttl_seconds=cache_ttl_seconds
         )
-        
+
         self.policy_engine = TemporalPolicyEngine(
-            neo4j_manager=self.neo4j_manager,
+            neo4j_manager=None,
             graphiti_manager=self.graphiti_manager,
             enable_caching=enable_caching,
             cache_ttl_seconds=cache_ttl_seconds
