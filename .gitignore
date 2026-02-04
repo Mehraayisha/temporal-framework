@@ -90,6 +90,7 @@ __pycache__/
 .env.*
 .idea/
 .vscode/
+ai-privacy-firewall.pptx
 
 # pyenv
 .python-version
