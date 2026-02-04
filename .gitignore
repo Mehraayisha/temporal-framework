@@ -83,14 +83,31 @@ target/
 profile_default/
 ipython_config.py
 
+# Documentation files (ignore if not needed in repo)
+ARCHITECTURE.md
+DEMO_OVERVIEW.md
+INTEGRATION_COMPLETE.md
+INTEGRATION_GUIDE.md
+NEO4J_IMPLEMENTATION.md
+NEO4J_QUICK_REFERENCE.md
+PRESENTATION_GUIDE.md
+PRESENTATION_SLIDES.md
+STATUS.md
+TEAM_B_INTEGRATION.md
+TEAM_B_INTEGRATION_ANALYSIS.md
+TEMPORAL_ROLE_INHERITANCE_COMPLETE.md
+WEEK2_ENHANCED_VALIDATION.md
+
+# Presentation file
+ai-privacy-firewall.pptx
+
+# Python environment files
 venv/
 __pycache__/
 *.pyc
 .env
 .env.*
-.idea/
-.vscode/
-ai-privacy-firewall.pptx
+
 
 # pyenv
 .python-version
