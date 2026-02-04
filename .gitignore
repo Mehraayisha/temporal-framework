@@ -213,7 +213,7 @@ run.bat
 # Python virtual environments (redundant entries consolidated)
 .venv/
 venv/
-
+privacy_firewall_integration/
 # Editor/workspace
 .vscode/
 .vscode/*.code-workspace

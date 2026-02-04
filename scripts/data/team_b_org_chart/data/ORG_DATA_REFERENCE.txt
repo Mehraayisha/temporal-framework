@@ -1,0 +1,233 @@
+================================================================================
+ORG DATA QUICK REFERENCE - TechFlow Solutions Inc.
+================================================================================
+
+COMPANY: TechFlow Solutions Inc.
+  Total Employees: 45
+  Founded: 2018-03-15
+  Headquarters: San Francisco, CA
+
+================================================================================
+DEPARTMENTS (6)
+================================================================================
+  dept-exec      : Executive       (Head Count: 4)  - restricted
+  dept-eng       : Engineering     (Head Count: 18) - confidential
+  dept-prod      : Product         (Head Count: 5)  - internal
+  dept-sales     : Sales           (Head Count: 8)  - confidential
+  dept-ops       : Operations      (Head Count: 6)  - restricted
+  dept-security  : Security        (Head Count: 4)  - restricted
+
+================================================================================
+TEAMS (13)
+================================================================================
+  Executive:
+    team-exec              : Executive Team
+  
+  Engineering:
+    team-frontend          : Frontend Engineering (Lead: Marcus Johnson)
+    team-backend           : Backend Engineering (Lead: Priya Patel)
+    team-devops            : DevOps & Infrastructure (Lead: James Wilson)
+    team-mobile            : Mobile Engineering (Lead: Elena Rodriguez)
+  
+  Product:
+    team-product           : Product Management (Lead: David Kim)
+    team-design            : Design Team (Lead: Sophie Martinez)
+  
+  Sales:
+    team-enterprise-sales  : Enterprise Sales (Lead: Michael O'Brien)
+    team-customer-success  : Customer Success (Lead: Jessica Thompson)
+  
+  Operations:
+    team-hr                : Human Resources (Lead: Amanda Garcia)
+    team-finance           : Finance & Accounting (Lead: Robert Lee)
+  
+  Security:
+    team-infosec           : Information Security (Lead: Alex Turner)
+    team-compliance        : Compliance & Privacy (Lead: Monica Lewis)
+
+================================================================================
+PROJECTS (3)
+================================================================================
+  proj-phoenix           : Project Phoenix
+    Status: active
+    Lead: Priya Patel
+    Department: Engineering
+    Classification: confidential
+    Team Members: 6 (Priya Patel, Emily Zhang, Kevin Zhang, David Kim, 
+                     Laura Bennett, Sophie Martinez)
+    Timeline: 2025-08-01 to 2025-12-31
+    Budget: $500,000
+    Description: AI-powered analytics dashboard for enterprise customers
+
+  proj-security-audit    : SOC 2 Type II Certification
+    Status: active
+    Lead: Alex Turner
+    Department: Security
+    Classification: restricted
+    Team Members: 4 (Alex Turner, Ryan Foster, Monica Lewis, James Wilson)
+    Timeline: 2025-07-01 to 2026-03-31
+    Budget: $150,000
+    Description: Complete SOC 2 Type II compliance and certification process
+
+  proj-mobile-v2         : Mobile App v2.0 Redesign
+    Status: active
+    Lead: Elena Rodriguez
+    Department: Engineering
+    Classification: internal
+    Team Members: 5 (Elena Rodriguez, Isabella Rossi, Kenji Tanaka, 
+                     Sophie Martinez, Oliver Brown)
+    Timeline: 2025-09-01 to 2026-02-28
+    Budget: $300,000
+    Description: Complete redesign and rebuild of mobile applications
+
+================================================================================
+KEY EXECUTIVES (4)
+================================================================================
+  Sarah Chen             : CEO & Co-Founder
+    Email: sarah.chen@techflow.com
+    Department: Executive
+    Security Clearance: executive
+    Hierarchy: 1
+
+  Thomas Anderson        : CTO & Co-Founder
+    Email: thomas.anderson@techflow.com
+    Department: Engineering
+    Security Clearance: executive
+    Hierarchy: 2
+
+  Jennifer Martinez      : CFO
+    Email: jennifer.martinez@techflow.com
+    Department: Operations
+    Security Clearance: executive
+    Hierarchy: 2
+
+  Michael O'Brien        : VP of Sales
+    Email: michael.obrien@techflow.com
+    Department: Sales
+    Security Clearance: elevated
+    Hierarchy: 3
+
+================================================================================
+CONTRACTORS (7)
+================================================================================
+  Lisa Kumar             : QA Engineer (Contractor)
+    Email: lisa.kumar@techflow.com
+    Team: Backend Engineering
+    Contract End: 2025-12-31
+
+  Oliver Brown           : UX Designer (Contractor)
+    Email: oliver.brown@techflow.com
+    Team: Design Team
+    Contract End: 2025-11-30
+
+  Isabella Rossi         : Mobile Developer (Contractor)
+    Email: isabella.rossi@techflow.com
+    Team: Mobile Engineering
+    Contract End: 2026-01-15
+
+  Kenji Tanaka           : Mobile Developer (Contractor)
+    Email: kenji.tanaka@techflow.com
+    Team: Mobile Engineering
+    Contract End: 2026-01-15
+
+  Thomas Wright          : Sales Engineer (Contractor)
+    Email: thomas.wright@techflow.com
+    Team: Enterprise Sales
+    Contract End: 2025-12-15
+
+  Christopher Davis      : Customer Success Manager (Contractor)
+    Email: christopher.davis@techflow.com
+    Team: Customer Success
+    Contract End: 2026-02-28
+
+  Brandon Scott          : Compliance Analyst (Contractor)
+    Email: brandon.scott@techflow.com
+    Team: Compliance & Privacy
+    Contract End: 2025-11-15
+
+================================================================================
+SAMPLE EMPLOYEES BY DEPARTMENT
+================================================================================
+
+Executive (4 employees):
+  • Sarah Chen <sarah.chen@techflow.com>
+    Title: CEO & Co-Founder
+  • Thomas Anderson <thomas.anderson@techflow.com>
+    Title: CTO & Co-Founder
+  • Jennifer Martinez <jennifer.martinez@techflow.com>
+    Title: CFO
+  • David Thompson <david.thompson@techflow.com>
+    Title: Chief Operating Officer
+
+Engineering (18 employees):
+  • Marcus Johnson <marcus.johnson@techflow.com>
+    Title: Engineering Manager - Frontend, Team: Frontend Engineering
+  • Priya Patel <priya.patel@techflow.com>
+    Title: Engineering Manager - Backend, Team: Backend Engineering
+  • James Wilson <james.wilson@techflow.com>
+    Title: Senior DevOps Engineer, Team: DevOps & Infrastructure
+  ... and 15 more
+
+Product (5 employees):
+  • David Kim <david.kim@techflow.com>
+    Title: VP of Product, Team: Product Management
+  • Sophie Martinez <sophie.martinez@techflow.com>
+    Title: Lead Product Designer, Team: Design Team
+  • Laura Bennett <laura.bennett@techflow.com>
+    Title: Senior Product Manager, Team: Product Management
+  ... and 2 more
+
+Sales (8 employees):
+  • Michael O'Brien <michael.obrien@techflow.com>
+    Title: VP of Sales, Team: Enterprise Sales
+  • Jessica Thompson <jessica.thompson@techflow.com>
+    Title: Director of Customer Success, Team: Customer Success
+  • Daniel Park <daniel.park@techflow.com>
+    Title: Enterprise Account Executive, Team: Enterprise Sales
+  ... and 5 more
+
+Operations (6 employees):
+  • Amanda Garcia <amanda.garcia@techflow.com>
+    Title: Director of HR, Team: Human Resources
+  • Robert Lee <robert.lee@techflow.com>
+    Title: Controller, Team: Finance & Accounting
+  • Brian Martinez <brian.martinez@techflow.com>
+    Title: HR Manager, Team: Human Resources
+  ... and 3 more
+
+Security (4 employees):
+  • Alex Turner <alex.turner@techflow.com>
+    Title: Director of Information Security, Team: Information Security
+  • Monica Lewis <monica.lewis@techflow.com>
+    Title: Compliance Manager, Team: Compliance & Privacy
+  • Nina Patel <nina.patel@techflow.com>
+    Title: Security Engineer, Team: Information Security
+  • Ryan Foster <ryan.foster@techflow.com>
+    Title: Security Analyst, Team: Information Security
+
+================================================================================
+SPECIAL SITUATIONS
+================================================================================
+
+Acting Roles (2):
+  • Grace Kim - Acting DevOps Manager
+    Covering for: James Wilson (Parental Leave)
+    Duration: 2025-10-01 to 2025-11-30
+    Temporary Clearance: elevated
+
+  • Laura Bennett - Acting VP of Product
+    Covering for: David Kim (Medical Leave)
+    Duration: 2025-10-15 to 2025-10-31
+    Temporary Clearance: elevated
+
+On-Call Rotations (2):
+  • DevOps & Infrastructure: James Wilson (2025-10-01 to 2025-10-07)
+    Escalation: Thomas Anderson
+  
+  • Information Security: Nina Patel (2025-10-01 to 2025-10-14)
+    Escalation: Alex Turner
+
+================================================================================
+EMAIL DOMAIN: @techflow.com
+ALL EMPLOYEE EMAILS USE THIS DOMAIN
+================================================================================

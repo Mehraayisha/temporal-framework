@@ -32,3 +32,57 @@ rules:
       access_window:
         start: "2025-09-25T09:00:00+05:30"
         end: "2025-09-25T17:00:00+05:30"
+
+  # Earnings Embargo (FIN-001): block before release, allow with audit after release
+  - id: "FIN-001-EMBARGO"
+    action: BLOCK
+    tuples:
+      data_type: earnings_data
+      data_sender: "*"
+      data_recipient: "*"
+      transmission_principle: "*"
+    temporal_context:
+      access_window:
+        start: "2025-01-05T00:00:00+00:00"
+        end: "2025-01-07T23:59:59+00:00"
+
+  - id: "FIN-001-POST-RELEASE"
+    action: ALLOW_WITH_AUDIT
+    tuples:
+      data_type: earnings_data
+      data_sender: "*"
+      data_recipient: "*"
+      transmission_principle: "*"
+    temporal_context:
+      access_window:
+        start: "2025-01-08T00:00:00+00:00"
+        end: "2025-12-31T23:59:59+00:00"
+
+  # GDPR 72h Breach Notification Window (GDPR-001): expedite within window
+  - id: "GDPR-001"
+    action: EXPEDITE
+    tuples:
+      data_type: breach_details
+      data_sender: "*"
+      data_recipient: regulator
+      transmission_principle: regulatory_requirement
+    temporal_context:
+      situation: INCIDENT
+      access_window:
+        start: "2025-01-05T00:00:00+00:00"
+        end: "2025-01-08T00:00:00+00:00"
+      max_data_freshness_seconds: 259200  # 72 hours
+
+  # Acting Role Permissions (TEMP-001): inherit permissions while acting role is active
+  - id: "TEMP-001"
+    action: INHERIT_PERMISSIONS
+    tuples:
+      data_type: "*"
+      data_sender: "*"
+      data_recipient: "*"
+      transmission_principle: "*"
+    temporal_context:
+      temporal_role: ["acting_manager", "acting_supervisor", "acting_department_head"]
+      access_window:
+        start: "2024-12-01T00:00:00+00:00"
+        end: "2025-02-01T00:00:00+00:00"

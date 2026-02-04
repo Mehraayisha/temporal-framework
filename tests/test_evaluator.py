@@ -16,7 +16,8 @@ def make_tc(now, emergency=False):
         data_freshness_seconds=None,
         situation="EMERGENCY" if emergency else "NORMAL",
         temporal_role=None,
-        event_correlation=None
+        event_correlation=None,
+        emergency_authorization_id=("TEST-AUTH" if emergency else None)
     )
 
 def test_evaluator_no_match_blocks():

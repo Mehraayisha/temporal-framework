@@ -375,7 +375,8 @@ def test_risk_level_calculation():
         access_window=TimeWindow(start=now, end=now + timedelta(hours=1)),
         data_freshness_seconds=60,
         situation="EMERGENCY",  # Emergency situation
-        temporal_role="oncall_high"
+        temporal_role="oncall_high",
+        emergency_authorization_id="AUTH-TEST-RISK"
     )
     
     inconsistent_tuple = EnhancedContextualIntegrityTuple(
@@ -680,7 +681,8 @@ def test_enhanced_validation_integration():
         access_window=TimeWindow(start=now, end=now + timedelta(hours=2)),
         data_freshness_seconds=60,
         situation="EMERGENCY",
-        temporal_role="oncall_high"
+        temporal_role="oncall_high",
+        emergency_authorization_id="AUTH-TEST-VALIDATION"
     )
     
     emergency_tuple = EnhancedContextualIntegrityTuple(

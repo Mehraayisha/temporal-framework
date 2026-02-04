@@ -1,0 +1,183 @@
+# Temporal Configuration
+# Settings for timezone, working hours, and temporal access control
+
+timezones:
+  # Supported timezones
+  supported:
+    - "America/Los_Angeles"  # PST/PDT
+    - "America/Chicago"      # CST/CDT
+    - "America/New_York"     # EST/EDT
+    - "Asia/Kolkata"         # IST
+    - "Europe/London"        # GMT/BST
+    - "UTC"
+    
+  # Default timezone
+  default: "America/Los_Angeles"
+
+working_hours:
+  # Standard business hours (24-hour format)
+  standard:
+    start: "09:00"
+    end: "17:00"
+    
+  # Flexible hours
+  flexible:
+    start: "07:00"
+    end: "19:00"
+    
+  # 24/7 support
+  always_on:
+    start: "00:00"
+    end: "23:59"
+
+employee_types:
+  full_time:
+    code: "full_time"
+    description: "Full-time employee"
+    has_contract_expiry: false
+    
+  contractor:
+    code: "contractor"
+    description: "Contract worker"
+    has_contract_expiry: true
+    default_contract_months: 6
+    
+  intern:
+    code: "intern"
+    description: "Internship position"
+    has_contract_expiry: true
+    default_contract_months: 3
+    
+  part_time:
+    code: "part_time"
+    description: "Part-time employee"
+    has_contract_expiry: false
+
+acting_roles:
+  # How long acting roles are valid by default
+  default_duration_days: 30
+  
+  # Maximum duration for acting roles
+  max_duration_days: 90
+  
+  # Grace period after expiry
+  grace_period_hours: 24
+
+on_call:
+  # On-call rotation settings
+  rotation_duration_days: 7
+  
+  # Emergency access during on-call
+  emergency_access_enabled: true
+  
+  # On-call authorization levels
+  authorization_levels:
+    backend_primary:
+      elevated_access: true
+      can_access_production_logs: true
+      can_access_incident_data: true
+      emergency_auth_level: "elevated"
+      
+    backend_secondary:
+      elevated_access: true
+      can_access_production_logs: true
+      can_access_incident_data: false
+      emergency_auth_level: "standard"
+      
+    frontend_primary:
+      elevated_access: true
+      can_access_production_logs: true
+      can_access_incident_data: true
+      emergency_auth_level: "elevated"
+      
+    infrastructure:
+      elevated_access: true
+      can_access_all_systems: true
+      can_access_incident_data: true
+      emergency_auth_level: "high"
+  
+  # Override policies during on-call
+  overrides:
+    # Allow oncall engineers to access logs regardless of team
+    allow_cross_team_logs: true
+    
+    # Allow oncall to view incident-related employee context
+    allow_incident_employee_context: true
+    
+    # Temporary elevated clearance during critical incidents
+    critical_incident_elevation:
+      enabled: true
+      max_duration_hours: 4
+      requires_approval: false
+      audit_required: true
+  
+  # Off-hours definition
+  off_hours:
+    weekday:
+      start: "18:00"
+      end: "08:00"
+    weekend: true
+    
+security_clearance:
+  # Clearance levels (hierarchical)
+  levels:
+    - code: "basic"
+      level: 1
+      description: "Basic access - general company data"
+      
+    - code: "elevated"
+      level: 2
+      description: "Elevated access - department-sensitive data"
+      
+    - code: "high"
+      level: 3
+      description: "High clearance - executive/financial data"
+      
+    - code: "restricted"
+      level: 4
+      description: "Restricted access - highly confidential"
+      
+  # Default clearance for new employees
+  default: "basic"
+
+data_classification:
+  # Data sensitivity levels
+  levels:
+    public:
+      level: 0
+      description: "Public data - no restrictions"
+      required_clearance: "basic"
+      
+    internal:
+      level: 1
+      description: "Internal use only"
+      required_clearance: "basic"
+      
+    confidential:
+      level: 2
+      description: "Confidential - department level"
+      required_clearance: "elevated"
+      
+    highly_confidential:
+      level: 3
+      description: "Highly confidential - executive level"
+      required_clearance: "high"
+      
+    restricted:
+      level: 4
+      description: "Restricted - legal/financial"
+      required_clearance: "restricted"
+
+temporal_checks:
+  # Enable/disable various temporal checks
+  enforce_business_hours: true
+  allow_on_call_override: true
+  enforce_contract_expiry: true
+  check_acting_roles: true
+  timezone_aware: true
+  
+  # Grace periods
+  grace_periods:
+    after_hours_minutes: 30
+    contract_expiry_days: 0
+    acting_role_hours: 24

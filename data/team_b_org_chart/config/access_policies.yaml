@@ -1,0 +1,257 @@
+# Resource-Based Access Control Policies
+# Proper architecture: "Can employee X access resource Y owned by Z?"
+
+policies:
+  # ==========================================================================
+  # TIER 1: EXECUTIVE OVERRIDE (Priority 98-100)
+  # These override all other rules including clearance requirements
+  # ==========================================================================
+  
+  - name: "ceo_universal_access"
+    description: "CEO has access to all organizational resources"
+    priority: 100
+    conditions:
+      is_ceo: true
+    action: "ALLOW"
+    confidence_boost: 1.0
+
+  - name: "executive_downward_access"
+    description: "Executives can access resources at lower hierarchy levels"
+    priority: 99
+    conditions:
+      is_executive: true
+      hierarchy_relationship: "downward"
+    action: "ALLOW"
+    confidence_boost: 0.9
+
+  - name: "executive_lateral_access"
+    description: "Executives can access lateral resources if same department"
+    priority: 98
+    conditions:
+      is_executive: true
+      hierarchy_relationship: "lateral"
+      same_department: true
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  # ==========================================================================
+  # TIER 2: ABSOLUTE DENIALS (Priority 95-97)
+  # ==========================================================================
+  
+  - name: "expired_contractor_deny"
+    description: "Expired contractors are automatically denied all access"
+    priority: 97
+    conditions:
+      is_expired_contractor: true
+    action: "DENY"
+    confidence_boost: 1.0
+
+  - name: "insufficient_clearance_deny"
+    description: "Insufficient security clearance blocks access"
+    priority: 95
+    conditions:
+      insufficient_clearance: true
+    action: "DENY"
+    confidence_boost: 0.95
+
+  # ==========================================================================
+  # TIER 3: HIERARCHY-BASED ACCESS (Priority 80-89)
+  # ==========================================================================
+  
+  - name: "downward_hierarchy_access"
+    description: "Higher hierarchy levels can access lower-level resources"
+    priority: 88
+    conditions:
+      hierarchy_relationship: "downward"
+      same_department: true
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  - name: "manager_team_access"
+    description: "Managers can access their team's resources"
+    priority: 85
+    conditions:
+      same_team: true
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  - name: "upward_hierarchy_deny"
+    description: "Lower levels cannot access higher-level restricted resources"
+    priority: 83
+    conditions:
+      hierarchy_relationship: "upward"
+      resource_classification: "restricted"
+    action: "DENY"
+    confidence_boost: 0.75
+
+  - name: "upward_hierarchy_secret_deny"
+    description: "Lower levels cannot access higher-level secret resources"
+    priority: 82
+    conditions:
+      hierarchy_relationship: "upward"
+      resource_classification: "secret"
+    action: "DENY"
+    confidence_boost: 0.8
+
+  # ==========================================================================
+  # TIER 4: PROJECT-BASED ACCESS (Priority 70-79)
+  # ==========================================================================
+  
+  - name: "shared_project_confidential"
+    description: "Project members can access project confidential resources"
+    priority: 79
+    conditions:
+      shared_project: true
+      resource_classification: "confidential"
+      resource_type: "project_resource"
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  - name: "shared_project_internal"
+    description: "Project members can access project internal resources"
+    priority: 77
+    conditions:
+      shared_project: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.75
+
+  - name: "project_lead_access"
+    description: "Project leads can access all project resources"
+    priority: 76
+    conditions:
+      is_project_lead: true
+      resource_owner_type: "project"
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  # ==========================================================================
+  # TIER 5: DEPARTMENT/TEAM ACCESS (Priority 60-69)
+  # ==========================================================================
+  
+  - name: "same_department_confidential"
+    description: "Same department members can access confidential resources"
+    priority: 78
+    conditions:
+      same_department: true
+      resource_classification: "confidential"
+    action: "ALLOW"
+    confidence_boost: 0.75
+
+  - name: "same_team_access"
+    description: "Team members can access team resources"
+    priority: 75
+    conditions:
+      same_team: true
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  - name: "same_department_internal"
+    description: "Same department can access internal resources"
+    priority: 72
+    conditions:
+      same_department: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.7
+
+  # ==========================================================================
+  # TIER 5: PUBLIC/INTERNAL RESOURCES (Priority 60-69)
+  # ==========================================================================
+  
+  - name: "public_resource_access"
+    description: "Anyone can access public resources"
+    priority: 65
+    conditions:
+      resource_classification: "public"
+    action: "ALLOW"
+    confidence_boost: 0.6
+
+  - name: "internal_resource_access"
+    description: "Any employee can access internal resources"
+    priority: 62
+    conditions:
+      resource_classification: "internal"
+      requester_type: "full_time"
+    action: "ALLOW"
+    confidence_boost: 0.6
+
+  # ==========================================================================
+  # TIER 6: CONTRACTOR ACCESS (Priority 50-59)
+  # ==========================================================================
+  
+  - name: "valid_contractor_team_access"
+    description: "Valid contractors can access their team's resources"
+    priority: 55
+    conditions:
+      is_valid_contractor: true
+      same_team: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.5
+
+  - name: "contractor_confidential_deny"
+    description: "Contractors cannot access confidential+ resources"
+    priority: 52
+    conditions:
+      requester_type: "contractor"
+      resource_classification: "confidential"
+    action: "DENY"
+    confidence_boost: 0.7
+
+  # ==========================================================================
+  # TIER 7: TEMPORAL RESTRICTIONS (Priority 40-49)
+  # ==========================================================================
+  
+  - name: "after_hours_secret_deny"
+    description: "Secret resources blocked outside business hours"
+    priority: 45
+    conditions:
+      is_business_hours: false
+      resource_classification: "secret"
+    action: "DENY"
+    confidence_boost: 0.6
+
+  - name: "after_hours_restricted_deny"
+    description: "Restricted resources blocked outside business hours"
+    priority: 43
+    conditions:
+      is_business_hours: false
+      resource_classification: "restricted"
+    action: "DENY"
+    confidence_boost: 0.5
+
+  # ==========================================================================
+  # TIER 8: CROSS-DEPARTMENT RESTRICTIONS (Priority 30-39)
+  # ==========================================================================
+  
+  - name: "cross_department_confidential_deny"
+    description: "Cross-department access to confidential resources denied"
+    priority: 35
+    conditions:
+      same_department: false
+      resource_classification: "confidential"
+      is_executive: false
+    action: "DENY"
+    confidence_boost: 0.6
+
+  - name: "cross_department_restricted_deny"
+    description: "Cross-department access to restricted resources denied"
+    priority: 33
+    conditions:
+      same_department: false
+      resource_classification: "restricted"
+    action: "DENY"
+    confidence_boost: 0.7
+
+  # ==========================================================================
+  # TIER 9: DEFAULT DENY (Priority 1)
+  # ==========================================================================
+  
+  - name: "default_deny_all"
+    description: "Deny access if no other rules match"
+    priority: 1
+    conditions: {}
+    action: "DENY"
+    confidence_boost: 0.9
+

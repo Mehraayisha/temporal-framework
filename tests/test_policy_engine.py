@@ -54,7 +54,8 @@ class TestTemporalPolicyEngine:
             data_freshness_seconds=300,
             situation="EMERGENCY",
             temporal_role="emergency_responder",
-            event_correlation="incident-123"
+            event_correlation="incident-123",
+            emergency_authorization_id="AUTH-TEST-INCIDENT-123"
         )
         
         emergency_tuple = EnhancedContextualIntegrityTuple(
@@ -312,7 +313,8 @@ class TestTemporalPolicyEngine:
             data_freshness_seconds=300,
             situation="EMERGENCY",
             temporal_role="emergency_responder",
-            event_correlation="incident-456"
+            event_correlation="incident-456",
+            emergency_authorization_id="AUTH-TEST-INCIDENT-456"
         )
         
         high_risk_tuple = EnhancedContextualIntegrityTuple(

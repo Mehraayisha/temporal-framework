@@ -104,6 +104,8 @@ class TemporalContext(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     model_config = ConfigDict(
+        # Allow extra fields for dynamic enrichment (data_domain, etc)
+        extra="allow",
         # Pydantic V2 handles datetime serialization automatically
         # No need for deprecated json_encoders
     )
@@ -137,6 +139,15 @@ class TemporalContext(BaseModel):
             if v not in valid_roles:
                 raise ValueError(f'temporal_role must be one of {valid_roles}')
         return v
+
+    @model_validator(mode='after')
+    def validate_emergency_authorization(self):
+        """Ensure emergency_authorization_id is present when emergency_override is True"""
+        if getattr(self, 'emergency_override', False):
+            auth_id = getattr(self, 'emergency_authorization_id', None)
+            if not auth_id or (isinstance(auth_id, str) and auth_id.strip() == ""):
+                raise ValueError('emergency_authorization_id is required when emergency_override is True')
+        return self
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with enhanced logging"""
@@ -181,6 +192,9 @@ class TemporalContext(BaseModel):
             TemporalContext instance
         """
         now = now or datetime.now(timezone.utc)
+        auth_id = None
+        if emergency_override:
+            auth_id = f"AUTH-{now.strftime('%Y%m%dT%H%M%S')}"
         tc = cls(
             timestamp=now,
             timezone="UTC",
@@ -188,7 +202,8 @@ class TemporalContext(BaseModel):
             emergency_override=emergency_override,
             access_window=access_window,
             temporal_role=temporal_role,
-            situation=("EMERGENCY" if emergency_override else "NORMAL")
+            situation=("EMERGENCY" if emergency_override else "NORMAL"),
+            emergency_authorization_id=auth_id
         )
         return tc
 
@@ -1303,6 +1318,9 @@ class EnhancedContextualIntegrityTuple(BaseModel):
         
         # Handle different temporal context formats
         if isinstance(temporal_data, dict):
+            if temporal_data.get("emergency_override") and not temporal_data.get("emergency_authorization_id"):
+                temporal_data = dict(temporal_data)
+                temporal_data["emergency_authorization_id"] = "AUTO-AUTH"
             temporal_context = TemporalContext.model_validate(temporal_data)
         else:
             temporal_context = temporal_data  # Already a TemporalContext object

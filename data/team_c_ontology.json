@@ -1,0 +1,11 @@
+{
+  "classes": {
+    "Data": { "parents": [], "equivalent": [] },
+    "PersonalData": { "parents": ["Data"], "equivalent": [] },
+    "MedicalRecord": { "parents": ["PersonalData"], "equivalent": ["Diagnosis", "ClinicalNote"], "tags": ["PHI"] },
+    "Diagnosis": { "parents": ["MedicalRecord"], "equivalent": ["Dx"] },
+    "ClinicalNote": { "parents": ["MedicalRecord"], "equivalent": [] },
+    "FinancialRecord": { "parents": ["Data"], "equivalent": ["Revenue"] },
+    "SSN": { "parents": ["PersonalData"], "equivalent": ["TIN", "TaxID"], "tags": ["PII"] }
+  }
+}

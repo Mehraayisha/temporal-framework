@@ -286,17 +286,23 @@ class ProductionTemporalFramework:
             "components": {}
         }
         
-        try:
-            # Check Neo4j connection
-            neo4j_healthy = self.neo4j_manager.health_check()
+        # Neo4j may be intentionally omitted in Graphiti-only deployments
+        if self.neo4j_manager:
+            try:
+                neo4j_healthy = self.neo4j_manager.health_check()
+                health_status["components"]["neo4j"] = {
+                    "status": "healthy" if neo4j_healthy else "unhealthy",
+                    "response_time_ms": 0
+                }
+            except Exception as e:
+                health_status["components"]["neo4j"] = {
+                    "status": "error",
+                    "error": str(e)
+                }
+        else:
             health_status["components"]["neo4j"] = {
-                "status": "healthy" if neo4j_healthy else "unhealthy",
-                "response_time_ms": 0  # Add actual timing
-            }
-        except Exception as e:
-            health_status["components"]["neo4j"] = {
-                "status": "error",
-                "error": str(e)
+                "status": "not_configured",
+                "message": "Neo4j manager not provided; running in Graphiti-only mode"
             }
         
         # Check Graphiti connection

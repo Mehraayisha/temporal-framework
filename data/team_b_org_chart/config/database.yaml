@@ -1,0 +1,80 @@
+# Database Configuration
+# All database-related constants and settings
+
+neo4j:
+  # Connection settings (actual values from .env)
+  default_uri: "bolt://localhost:7687"
+  default_user: "neo4j"
+  default_password: "password"
+  database: "neo4j"
+  
+  # Connection pooling
+  max_connection_pool_size: 50
+  connection_timeout: 30  # seconds
+  max_transaction_retry_time: 30  # seconds
+
+llm:
+  # Development LLM (Groq)
+  dev:
+    provider: "groq"
+    model: "llama-3.3-70b-versatile"
+    
+  # Production LLM (OpenAI)
+  prod:
+    provider: "openai"
+    small_model: "gpt-5-nano"
+    model: "gpt-5-mini"
+    
+  # Default environment
+  default_environment: "development"
+
+graphiti:
+  # Entity configurations
+  entity_types:
+    - "Employee"
+    - "Department"
+    - "Team"
+    - "Project"
+    
+  # Edge types
+  edge_types:
+    employee_employee:
+      - "REPORTS_TO"
+      - "MANAGES"
+      - "COLLABORATES_WITH"
+    employee_department:
+      - "MEMBER_OF"
+    employee_team:
+      - "MEMBER_OF"
+    employee_project:
+      - "ASSIGNED_TO"
+    manager_team:
+      - "MANAGES"
+      
+  # Search configuration
+  search:
+    default_limit: 10
+    max_limit: 100
+    similarity_threshold: 0.7
+    
+  # Performance
+  batch_size: 50
+  parallel_operations: true
+  cache_enabled: true
+  cache_ttl: 300  # seconds
+
+# Logging
+logging:
+  level: "DEBUG"
+  format: "%(asctime)s - %(name)s - [%(filename)s:%(funcName)s:%(lineno)d] - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  
+# Error messages
+errors:
+  entity_not_found: "Entity '{entity_name}' of type '{entity_type}' not found"
+  connection_failed: "Failed to connect to Neo4j database"
+  invalid_relationship: "Invalid relationship type '{rel_type}' between '{source_type}' and '{target_type}'"
+  employee_creation_failed: "Failed to create employee node: {reason}"
+  department_creation_failed: "Failed to create department node: {reason}"
+  team_creation_failed: "Failed to create team node: {reason}"
+  edge_creation_failed: "Failed to create edge '{edge_type}': {reason}"

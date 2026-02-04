@@ -1,6 +1,7 @@
 # core/policy_engine.py
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
+import os
 from core.tuples import EnhancedContextualIntegrityTuple, TemporalContext
 from core import holds
 from core import audit
@@ -12,11 +13,21 @@ class TemporalPolicyEngine:
     Core engine for evaluating temporal policies based on the 6-tuple framework
     """
     
-    def __init__(self, config_file: str = "mocks/rules.yaml", neo4j_manager=None, graphiti_manager=None):
+    def __init__(self, config_file: str = "mocks/rules.yaml", neo4j_manager=None, graphiti_manager=None, team_b_adapter=None):
         """Initialize PolicyEngine with YAML config file and optional Neo4j or Graphiti manager."""
         self.config_file = config_file
         self.neo4j_manager = neo4j_manager
         self.graphiti_manager = graphiti_manager
+        # Team B adapter (optional). If not provided, honor TEAM_B_INTEGRATION env var
+        # and attempt to import the adapter lazily so integration is opt-in.
+        self.team_b_adapter = team_b_adapter
+        if self.team_b_adapter is None and os.environ.get("TEAM_B_INTEGRATION", "false").lower() in ("1", "true", "yes"):
+            try:
+                from adapters import team_b_adapter as _tba
+                self.team_b_adapter = _tba
+            except Exception:
+                # If import fails, keep adapter as None (non-destructive)
+                self.team_b_adapter = None
         
         # Set up file paths for YAML fallback
         self.rules_file = config_file
@@ -139,6 +150,17 @@ class TemporalPolicyEngine:
             "risk_level": "high"
         }
         
+        # Optional: enrich request with Team B org context (non-destructive)
+        try:
+            if self.team_b_adapter:
+                try:
+                    self._enrich_with_team_b(request)
+                except Exception:
+                    # Don't fail evaluation if enrichment fails
+                    pass
+        except Exception:
+            pass
+
         # Load temporal policies (Neo4j first, YAML fallback)
         if self.use_neo4j:
             try:
@@ -265,6 +287,68 @@ class TemporalPolicyEngine:
             pass
 
         return result
+
+    def _enrich_with_team_b(self, request: EnhancedContextualIntegrityTuple) -> None:
+        """Fetch org context from Team B for relevant principals and attach
+        the raw response to `request.temporal_context.org_context`.
+
+        This method is intentionally read-only with respect to Team B's files
+        and will not modify external folders. It fails silently on errors.
+        """
+        adapter = self.team_b_adapter
+        if not adapter:
+            return
+
+        tc = request.temporal_context
+
+        # Try to get context for the acting user (temporal_context.user_id)
+        user_id = getattr(tc, "user_id", None)
+        try:
+            if user_id:
+                ctx = adapter.get_org_context(user_id)
+                # Attach both to temporal_context and to the request object so
+                # downstream code can find it regardless of pydantic attribute rules.
+                try:
+                    setattr(tc, "org_context_user", ctx)
+                except Exception:
+                    try:
+                        tc.org_context_user = ctx
+                    except Exception:
+                        pass
+
+                try:
+                    setattr(request, "org_context_user", ctx)
+                except Exception:
+                    try:
+                        request.org_context_user = ctx
+                    except Exception:
+                        pass
+        except Exception:
+            # ignore failures
+            pass
+
+        # Try to get context for the data subject if present
+        data_subj = getattr(request, "data_subject", None)
+        try:
+            if data_subj:
+                ctx2 = adapter.get_org_context(data_subj)
+                try:
+                    setattr(tc, "org_context_subject", ctx2)
+                except Exception:
+                    try:
+                        tc.org_context_subject = ctx2
+                    except Exception:
+                        pass
+
+                try:
+                    setattr(request, "org_context_subject", ctx2)
+                except Exception:
+                    try:
+                        request.org_context_subject = ctx2
+                    except Exception:
+                        pass
+        except Exception:
+            pass
     
     def _evaluate_temporal_context(
         self, 
@@ -461,6 +545,31 @@ class TemporalPolicyEngine:
                     window_valid = False
             
             if window_valid:
+                score += 1.0
+            else:
+                return {"matches": False, "score": 0.0}
+
+        # Temporal role constraint
+        if "temporal_role" in constraints:
+            constraints_checked += 1
+            expected_roles = constraints["temporal_role"]
+            current_role = temporal_context.temporal_role
+            if isinstance(expected_roles, list):
+                if current_role in expected_roles:
+                    score += 1.0
+                else:
+                    return {"matches": False, "score": 0.0}
+            elif expected_roles == "*" or current_role == expected_roles:
+                score += 1.0
+            else:
+                return {"matches": False, "score": 0.0}
+
+        # Data freshness constraint (seconds)
+        if "max_data_freshness_seconds" in constraints:
+            constraints_checked += 1
+            max_age = constraints["max_data_freshness_seconds"]
+            freshness = temporal_context.data_freshness_seconds
+            if freshness is None or freshness <= max_age:
                 score += 1.0
             else:
                 return {"matches": False, "score": 0.0}
@@ -701,3 +810,189 @@ class TemporalPolicyEngine:
             setattr(request.temporal_context, "inherited_permissions", perms)
 
         return perms
+    
+    # ============================================================================
+    # STEP 4: Integration with Graphiti-Enriched Temporal Context
+    # ============================================================================
+    
+    def evaluate_with_graphiti_context(
+        self,
+        subject_id: str,
+        recipient_id: str,
+        action: str,
+        resource_id: str,
+        data_type: str = "unspecified",
+        resource_attributes: Optional[Dict[str, Any]] = None,
+        timestamp: Optional[datetime] = None
+    ) -> Dict[str, Any]:
+        """
+        STEP 4: Unified evaluation using Graphiti-enriched temporal context
+        
+        This method combines:
+        1. Graphiti API calls to fetch org relationships
+        2. TemporalContext enrichment with org metadata
+        3. 6-tuple evaluation with full context
+        4. Policy engine decision with org factors
+        
+        Args:
+            subject_id: Requesting user (e.g., "emp-5892")
+            recipient_id: Resource owner (e.g., "emp-2109")
+            action: Action type (e.g., "read", "write", "delete")
+            resource_id: Resource identifier (e.g., "payroll_db_2024")
+            data_type: Data classification (e.g., "payroll", "medical")
+            resource_attributes: Optional dict with resource properties
+            timestamp: Optional evaluation timestamp (defaults to now)
+        
+        Returns:
+            Decision dict with keys:
+            - decision: ALLOW, DENY, ALLOW_WITH_AUDIT, EXPEDITE, INHERIT_PERMISSIONS
+            - policy_matched: Matching policy ID if any
+            - reasons: List of decision reasons
+            - confidence_score: 0.0-1.0 confidence
+            - risk_level: low, medium, high, critical
+            - org_context: Organizational context used
+            - expires_at: Expiration time if temporary access
+        """
+        from core.enricher import build_temporal_context_from_graphiti
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        timestamp = timestamp or datetime.now(timezone.utc)
+        
+        logger.info(f"STEP 4 evaluation: {subject_id} -> {recipient_id} ({action})")
+        
+        # 1. Build enriched temporal context from Graphiti
+        logger.debug(f"Enriching temporal context from Graphiti...")
+        temporal_context = build_temporal_context_from_graphiti(
+            sender_id=subject_id,
+            recipient_id=recipient_id,
+            data_type=data_type,
+            timestamp=timestamp
+        )
+        
+        logger.info(f"Enriched context: role={temporal_context.temporal_role}, "
+                   f"situation={temporal_context.situation}, "
+                   f"has_access_window={temporal_context.access_window is not None}")
+        
+        # 2. Create 6-tuple with enriched context
+        resource_attrs = resource_attributes or {}
+        tuple_obj = EnhancedContextualIntegrityTuple(
+            data_type=data_type,
+            data_subject=recipient_id,
+            data_sender="temporal_engine",
+            data_recipient=subject_id,
+            transmission_principle="need_to_know",
+            temporal_context=temporal_context,
+        )
+        
+        logger.debug(f"Created 6-tuple: {data_type} {recipient_id} -> {subject_id}")
+        
+        # 3. Evaluate through policy engine
+        logger.debug(f"Evaluating temporal access policy...")
+        decision = self.evaluate_temporal_access(tuple_obj)
+        
+        # 4. Enhance decision with org context factors
+        logger.debug(f"Applying org context factors to decision...")
+        org_factors = self._apply_org_context_factors(
+            decision=decision,
+            temporal_context=temporal_context,
+            resource_attrs=resource_attrs,
+            timestamp=timestamp
+        )
+        
+        decision["org_context"] = org_factors
+        
+        logger.info(f"STEP 4 decision: {decision['decision']} (confidence={decision['confidence_score']:.2f})")
+        
+        return decision
+    
+    def _apply_org_context_factors(
+        self,
+        decision: Dict[str, Any],
+        temporal_context: TemporalContext,
+        resource_attrs: Dict[str, Any],
+        timestamp: datetime
+    ) -> Dict[str, Any]:
+        """
+        Apply organizational context factors to access decision
+        
+        Factors:
+        - Manager relationship: Lower risk for manager accessing subordinate
+        - Department: Lower risk for same-department access
+        - Project membership: Lower risk for shared project access
+        - Acting roles: Auto-expiring access with dates
+        """
+        org_context = {
+            "has_manager_relationship": False,
+            "same_department": False,
+            "shared_projects": [],
+            "has_acting_role": False,
+            "confidence_boost": 0.0,
+            "risk_adjustment": 0.0,
+        }
+        
+        # Factor 1: Manager relationship (from temporal_role)
+        if temporal_context.temporal_role == "manager":
+            org_context["has_manager_relationship"] = True
+            org_context["confidence_boost"] += 0.15
+            org_context["risk_adjustment"] -= 0.2  # Lower risk
+            decision["reasons"].append(
+                f"Manager access to subordinate data (lower risk)"
+            )
+        
+        # Factor 2: Department context (from data_domain)
+        if hasattr(temporal_context, 'data_domain') and temporal_context.data_domain:
+            org_context["same_department"] = True
+            org_context["confidence_boost"] += 0.10
+            org_context["risk_adjustment"] -= 0.15
+            decision["reasons"].append(
+                f"Same department access: {temporal_context.data_domain} (lower risk)"
+            )
+        
+        # Factor 3: Project membership (from event_correlation)
+        if temporal_context.event_correlation and temporal_context.event_correlation.startswith("proj_"):
+            project_id = temporal_context.event_correlation.replace("proj_", "")
+            org_context["shared_projects"].append(project_id)
+            org_context["confidence_boost"] += 0.08
+            org_context["risk_adjustment"] -= 0.10
+            decision["reasons"].append(
+                f"Shared project access: {project_id} (lower risk)"
+            )
+        
+        # Factor 4: Acting roles with automatic expiration
+        if temporal_context.temporal_role and temporal_context.temporal_role.startswith("acting_"):
+            org_context["has_acting_role"] = True
+            if temporal_context.access_window:
+                access_end = temporal_context.access_window.end
+                if access_end and access_end < timestamp:
+                    # Role has expired
+                    decision["decision"] = "DENY"
+                    decision["reasons"].append(
+                        f"Acting role expired at {access_end.isoformat()}"
+                    )
+                    decision["risk_level"] = "high"
+                else:
+                    # Role is active with expiration
+                    decision["expires_at"] = access_end
+                    decision["confidence_boost"] = 0.12
+                    decision["reasons"].append(
+                        f"Temporary acting role: {temporal_context.temporal_role} "
+                        f"expires {access_end.isoformat() if access_end else 'never'}"
+                    )
+        
+        # Apply confidence and risk adjustments to decision
+        current_confidence = decision.get("confidence_score", 0.5)
+        current_risk = decision.get("risk_level", "medium")
+        
+        # Adjust confidence score
+        new_confidence = min(1.0, current_confidence + org_context["confidence_boost"])
+        decision["confidence_score"] = new_confidence
+        
+        # Adjust risk level based on org factors
+        risk_value = {"low": 1, "medium": 2, "high": 3, "critical": 4}.get(current_risk, 2)
+        risk_adjustment = org_context["risk_adjustment"]
+        adjusted_risk = max(1, min(4, risk_value + int(risk_adjustment * 2)))
+        risk_map = {1: "low", 2: "medium", 3: "high", 4: "critical"}
+        decision["risk_level"] = risk_map[adjusted_risk]
+        
+        return org_context

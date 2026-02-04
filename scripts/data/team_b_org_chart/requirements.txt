@@ -1,0 +1,40 @@
+# Core dependencies
+graphiti-core>=0.3.0
+neo4j>=5.0.0
+python-dotenv>=1.0.0
+
+# Deal contracts for function validation
+deal>=4.24.0
+
+# YAML configuration
+PyYAML>=6.0
+
+# Date/time handling with timezone support
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Async support
+asyncio>=3.4.3
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Data validation
+pydantic>=2.0.0
+
+# FastAPI and REST API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+httpx>=0.25.0  # For async HTTP client in tests
+
+# Faker for test data generation
+faker>=19.0.0
+
+# Logging enhancements
+colorlog>=6.7.0
+
+# LLM Clients
+openai>=1.0.0
+groq>=0.4.0

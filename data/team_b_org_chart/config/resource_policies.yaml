@@ -1,0 +1,439 @@
+# Resource-Based Access Control Policies
+# Architecture: "Can employee X access resource Y owned by Z?"
+# Date: November 2, 2025
+
+policies:
+  # ==========================================================================
+  # TIER 1: EXECUTIVE OVERRIDE (Priority 98-100)
+  # These override all other rules including clearance requirements
+  # ==========================================================================
+  
+  - name: "ceo_universal_access"
+    description: "CEO has access to all organizational resources"
+    priority: 100
+    conditions:
+      is_ceo: true
+    action: "ALLOW"
+    confidence_boost: 1.0
+
+  - name: "executive_downward_access"
+    description: "Executives can access resources at lower hierarchy levels"
+    priority: 99
+    conditions:
+      is_executive: true
+      hierarchy_relationship: "downward"
+    action: "ALLOW"
+    confidence_boost: 0.9
+  
+  - name: "executive_lateral_access"
+    description: "Executives can access same-level executive resources"
+    priority: 98
+    conditions:
+      is_executive: true
+      hierarchy_relationship: "lateral"
+      same_department: true
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  # ==========================================================================
+  # TIER 2: ABSOLUTE DENIALS (Priority 95-97)
+  # ==========================================================================
+  
+  - name: "expired_contractor_deny"
+    description: "Expired contractors are automatically denied all access"
+    priority: 97
+    conditions:
+      is_expired_contractor: true
+    action: "DENY"
+    confidence_boost: 1.0
+
+  - name: "insufficient_clearance_deny"
+    description: "Insufficient security clearance blocks access"
+    priority: 95
+    conditions:
+      insufficient_clearance: true
+    action: "DENY"
+    confidence_boost: 0.95
+
+  # ==========================================================================
+  # TIER 3: HIERARCHY-BASED ACCESS (Priority 80-89)
+  # ==========================================================================
+  
+  - name: "downward_hierarchy_access"
+    description: "Higher hierarchy levels can access lower-level resources"
+    priority: 88
+    conditions:
+      hierarchy_relationship: "downward"
+      same_department: true
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  - name: "manager_team_access"
+    description: "Managers can access their team's resources"
+    priority: 85
+    conditions:
+      same_team: true
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  - name: "upward_hierarchy_deny"
+    description: "Lower levels cannot access higher-level restricted resources"
+    priority: 83
+    conditions:
+      hierarchy_relationship: "upward"
+      resource_classification: "restricted"
+    action: "DENY"
+    confidence_boost: 0.75
+  
+  - name: "upward_secret_deny"
+    description: "Lower levels cannot access higher-level secret resources"
+    priority: 82
+    conditions:
+      hierarchy_relationship: "upward"
+      resource_classification: "secret"
+    action: "DENY"
+    confidence_boost: 0.8
+
+  # ==========================================================================
+  # TIER 4: PROJECT-BASED ACCESS (Priority 70-79)
+  # ==========================================================================
+  
+  - name: "project_lead_universal_access"
+    description: "Project leads have full access to all project resources"
+    priority: 79
+    conditions:
+      is_project_lead: true
+      resource_owner_type: "project"
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  - name: "shared_project_confidential"
+    description: "Project members can access project confidential resources"
+    priority: 78
+    conditions:
+      shared_project: true
+      resource_classification: "confidential"
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  - name: "shared_project_internal"
+    description: "Project members can access project internal resources"
+    priority: 77
+    conditions:
+      shared_project: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.75
+  
+  - name: "cross_functional_project_access"
+    description: "Cross-functional project teams can collaborate on project data"
+    priority: 76
+    conditions:
+      shared_project: true
+      same_department: false
+    action: "ALLOW"
+    confidence_boost: 0.7
+
+  # ==========================================================================
+  # TIER 5: DEPARTMENT/TEAM ACCESS (Priority 60-69)
+  # ==========================================================================
+  
+  - name: "same_department_confidential"
+    description: "Same department members can access confidential resources"
+    priority: 68
+    conditions:
+      same_department: true
+      resource_classification: "confidential"
+    action: "ALLOW"
+    confidence_boost: 0.75
+
+  - name: "same_team_resources"
+    description: "Team members can access team resources"
+    priority: 65
+    conditions:
+      same_team: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.8
+  
+  - name: "same_department_internal"
+    description: "Same department members can access internal resources"
+    priority: 63
+    conditions:
+      same_department: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.7
+
+  # ==========================================================================
+  # TIER 6: PUBLIC/INTERNAL RESOURCES (Priority 50-59)
+  # ==========================================================================
+  
+  - name: "public_resource_access"
+    description: "Anyone can access public resources"
+    priority: 55
+    conditions:
+      resource_classification: "public"
+    action: "ALLOW"
+    confidence_boost: 0.6
+
+  - name: "internal_resource_access"
+    description: "Full-time employees can access internal resources"
+    priority: 52
+    conditions:
+      resource_classification: "internal"
+      requester_type: "full_time"
+    action: "ALLOW"
+    confidence_boost: 0.6
+  
+  - name: "contractor_team_internal_only"
+    description: "Contractors limited to their team's internal resources"
+    priority: 51
+    conditions:
+      requester_type: "contractor"
+      same_team: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.55
+  
+  - name: "contractor_confidential_deny"
+    description: "Contractors cannot access confidential+ resources"
+    priority: 50
+    conditions:
+      requester_type: "contractor"
+      resource_classification: "confidential"
+    action: "DENY"
+    confidence_boost: 0.7
+
+  # ==========================================================================
+  # TIER 7: TIME-BASED RESTRICTIONS (Priority 40-49)
+  # ==========================================================================
+  
+  - name: "business_hours_top_secret_only"
+    description: "Top secret resources only accessible during business hours"
+    priority: 49
+    conditions:
+      is_business_hours: false
+      resource_classification: "top_secret"
+    action: "DENY"
+    confidence_boost: 0.9
+
+  - name: "business_hours_secret_only"
+    description: "Secret resources only accessible during business hours"
+    priority: 48
+    conditions:
+      is_business_hours: false
+      resource_classification: "secret"
+    action: "DENY"
+    confidence_boost: 0.7
+
+  - name: "weekend_financial_deny"
+    description: "Financial data cannot be accessed on weekends"
+    priority: 47
+    conditions:
+      is_weekend: true
+      resource_type: "financial_report"
+    action: "DENY"
+    confidence_boost: 0.75
+
+  - name: "weekend_restricted_deny"
+    description: "Restricted resources blocked on weekends"
+    priority: 46
+    conditions:
+      is_weekend: true
+      resource_classification: "restricted"
+    action: "DENY"
+    confidence_boost: 0.6
+
+  - name: "after_hours_contractor_deny"
+    description: "Contractors cannot access confidential+ data after hours"
+    priority: 44
+    conditions:
+      is_business_hours: false
+      requester_type: "contractor"
+      resource_classification: "confidential"
+    action: "DENY"
+    confidence_boost: 0.8
+  
+  - name: "acting_role_time_bound"
+    description: "Acting roles only valid during specified time window"
+    priority: 43
+    conditions:
+      has_acting_role: true
+      acting_role_expired: true
+    action: "DENY"
+    confidence_boost: 0.85
+
+  # ==========================================================================
+  # TIER 8: ACTION-BASED RESTRICTIONS (Priority 30-39)
+  # ==========================================================================
+  
+  - name: "execute_code_engineering_only"
+    description: "Execute code requires Engineering department"
+    priority: 39
+    conditions:
+      action: "execute"
+      resource_type: "source_code"
+      requester_department: "Engineering"
+    action: "ALLOW"
+    confidence_boost: 0.85
+
+  - name: "write_requires_same_dept"
+    description: "Write access requires same department"
+    priority: 38
+    conditions:
+      action: "write"
+      same_department: false
+      is_executive: false
+    action: "DENY"
+    confidence_boost: 0.7
+
+  - name: "delete_requires_manager"
+    description: "Delete requires manager level or higher"
+    priority: 36
+    conditions:
+      action: "delete"
+      requester_hierarchy_level: 1
+    action: "DENY"
+    confidence_boost: 0.8
+
+  - name: "share_external_deny"
+    description: "Sharing externally requires executive approval"
+    priority: 35
+    conditions:
+      action: "share"
+      share_external: true
+      is_executive: false
+    action: "DENY"
+    confidence_boost: 0.9
+
+  - name: "share_pii_deny"
+    description: "Sharing PII requires training certification"
+    priority: 34
+    conditions:
+      action: "share"
+      resource_type: "customer_data"
+      has_pii_training: false
+    action: "DENY"
+    confidence_boost: 0.9
+  
+  - name: "download_pii_requires_approval"
+    description: "Downloading customer PII requires manager approval"
+    priority: 33
+    conditions:
+      action: "download"
+      resource_type: "customer_data"
+      has_manager_approval: false
+    action: "DENY"
+    confidence_boost: 0.85
+  
+  - name: "read_only_for_observers"
+    description: "Observer role limited to read-only access"
+    priority: 32
+    conditions:
+      requester_role: "observer"
+      action: "write"
+    action: "DENY"
+    confidence_boost: 0.75
+  
+  - name: "financial_data_finance_only"
+    description: "Financial data only accessible by Finance dept or executives"
+    priority: 31
+    conditions:
+      resource_type: "financial_report"
+      requester_department: "Finance"
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  # ==========================================================================
+  # TIER 9: RELATIONSHIP-BASED ACCESS (Priority 20-29)
+  # ==========================================================================
+  
+  - name: "manager_direct_report_access"
+    description: "Managers can access their direct reports' resources"
+    priority: 29
+    conditions:
+      is_direct_manager: true
+      resource_classification: "confidential"
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  - name: "skip_level_restricted_deny"
+    description: "Skip-level managers cannot access restricted without approval"
+    priority: 27
+    conditions:
+      is_skip_level_manager: true
+      resource_classification: "restricted"
+      has_approval: false
+    action: "DENY"
+    confidence_boost: 0.7
+
+  - name: "peer_collaboration_same_level"
+    description: "Peers at same level can collaborate on shared resources"
+    priority: 26
+    conditions:
+      same_hierarchy_level: true
+      same_department: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.65
+  
+  - name: "cross_department_confidential_deny"
+    description: "Cross-department access to confidential resources denied"
+    priority: 25
+    conditions:
+      same_department: false
+      resource_classification: "confidential"
+      is_executive: false
+      shared_project: false
+    action: "DENY"
+    confidence_boost: 0.6
+  
+  - name: "mentor_mentee_access"
+    description: "Mentors can access mentee resources for guidance"
+    priority: 24
+    conditions:
+      is_mentor: true
+      resource_classification: "internal"
+    action: "ALLOW"
+    confidence_boost: 0.7
+  
+  - name: "hr_data_hr_only"
+    description: "HR data only accessible by HR department"
+    priority: 23
+    conditions:
+      resource_type: "hr_data"
+      requester_department: "HR"
+    action: "ALLOW"
+    confidence_boost: 0.9
+  
+  - name: "hr_data_manager_direct_reports"
+    description: "Managers can access HR data for their direct reports"
+    priority: 22
+    conditions:
+      resource_type: "hr_data"
+      is_direct_manager: true
+      resource_scope: "direct_report"
+    action: "ALLOW"
+    confidence_boost: 0.85
+  
+  - name: "source_code_engineering_read"
+    description: "Engineering department can read all source code"
+    priority: 21
+    conditions:
+      resource_type: "source_code"
+      action: "read"
+      requester_department: "Engineering"
+    action: "ALLOW"
+    confidence_boost: 0.8
+
+  # ==========================================================================
+  # TIER 10: DEFAULT DENY (Priority 1)
+  # ==========================================================================
+  
+  - name: "default_deny_all"
+    description: "Deny access if no other rules match"
+    priority: 1
+    conditions: {}
+    action: "DENY"
+    confidence_boost: 0.9

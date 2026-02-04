@@ -296,7 +296,21 @@ def enable_prometheus_metrics(registry=None) -> bool:
     """
     global _PROM_METRICS
     try:
-        from prometheus_client import Counter, Gauge, CollectorRegistry
+        import prometheus_client  # type: ignore
+        Counter = getattr(prometheus_client, "Counter")
+        Gauge = getattr(prometheus_client, "Gauge")
+        Histogram = getattr(prometheus_client, "Histogram", None)
+        CollectorRegistry = getattr(prometheus_client, "CollectorRegistry")
+
+        # Fallback no-op Histogram if missing (for tests that monkeypatch prometheus_client)
+        if Histogram is None:
+            class _NoopHistogram:
+                def __init__(self, *args, **kwargs):
+                    pass
+                def observe(self, *args, **kwargs):
+                    pass
+            Histogram = _NoopHistogram
+
         reg = registry if registry is not None else None
         # Recreate metrics in the given registry if provided
         if reg is not None and not isinstance(reg, CollectorRegistry):

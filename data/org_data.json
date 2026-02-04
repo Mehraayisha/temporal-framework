@@ -1,0 +1,1554 @@
+{
+  "company": {
+    "name": "TechFlow Solutions Inc.",
+    "founded": "2018-03-15",
+    "headquarters": "San Francisco, CA",
+    "employee_count": 45,
+    "description": "Mid-sized software company specializing in enterprise SaaS solutions"
+  },
+  "departments": [
+    {
+      "id": "dept-exec",
+      "name": "Executive",
+      "description": "C-suite and executive leadership team",
+      "budget": 800000,
+      "headCount": 4,
+      "data_classification": "restricted",
+      "office_location": "San Francisco, CA"
+    },
+    {
+      "id": "dept-eng",
+      "name": "Engineering",
+      "description": "Product development, software architecture, and infrastructure",
+      "budget": 2500000,
+      "headCount": 18,
+      "data_classification": "confidential",
+      "office_location": "San Francisco, CA"
+    },
+    {
+      "id": "dept-prod",
+      "name": "Product",
+      "description": "Product strategy, roadmap, UX design, and analytics",
+      "budget": 600000,
+      "headCount": 5,
+      "data_classification": "internal",
+      "office_location": "San Francisco, CA"
+    },
+    {
+      "id": "dept-sales",
+      "name": "Sales",
+      "description": "Enterprise sales, customer success, and business development",
+      "budget": 1200000,
+      "headCount": 8,
+      "data_classification": "confidential",
+      "office_location": "New York, NY"
+    },
+    {
+      "id": "dept-ops",
+      "name": "Operations",
+      "description": "HR, finance, legal, and general operations",
+      "budget": 500000,
+      "headCount": 6,
+      "data_classification": "restricted",
+      "office_location": "San Francisco, CA"
+    },
+    {
+      "id": "dept-security",
+      "name": "Security",
+      "description": "Information security, compliance, and privacy",
+      "budget": 400000,
+      "headCount": 4,
+      "data_classification": "restricted",
+      "office_location": "Remote"
+    }
+  ],
+  "teams": [
+    {
+      "id": "team-exec",
+      "name": "Executive Team",
+      "purpose": "Strategic direction and company leadership",
+      "department": "Executive",
+      "lead": "Sarah Chen",
+      "status": "active"
+    },
+    {
+      "id": "team-frontend",
+      "name": "Frontend Engineering",
+      "purpose": "Build and maintain user-facing features and UI",
+      "department": "Engineering",
+      "lead": "Marcus Johnson",
+      "status": "active"
+    },
+    {
+      "id": "team-backend",
+      "name": "Backend Engineering",
+      "purpose": "Develop backend services, APIs, and data infrastructure",
+      "department": "Engineering",
+      "lead": "Priya Patel",
+      "status": "active"
+    },
+    {
+      "id": "team-devops",
+      "name": "DevOps & Infrastructure",
+      "purpose": "Cloud infrastructure, CI/CD, and platform reliability",
+      "department": "Engineering",
+      "lead": "James Wilson",
+      "status": "active"
+    },
+    {
+      "id": "team-mobile",
+      "name": "Mobile Engineering",
+      "purpose": "iOS and Android mobile applications",
+      "department": "Engineering",
+      "lead": "Elena Rodriguez",
+      "status": "active"
+    },
+    {
+      "id": "team-product",
+      "name": "Product Management",
+      "purpose": "Define product vision and ensure user needs are met",
+      "department": "Product",
+      "lead": "David Kim",
+      "status": "active"
+    },
+    {
+      "id": "team-design",
+      "name": "Design Team",
+      "purpose": "UX/UI design and user research",
+      "department": "Product",
+      "lead": "Sophie Martinez",
+      "status": "active"
+    },
+    {
+      "id": "team-enterprise-sales",
+      "name": "Enterprise Sales",
+      "purpose": "Large enterprise customer acquisition",
+      "department": "Sales",
+      "lead": "Michael O'Brien",
+      "status": "active"
+    },
+    {
+      "id": "team-customer-success",
+      "name": "Customer Success",
+      "purpose": "Customer onboarding, support, and retention",
+      "department": "Sales",
+      "lead": "Jessica Thompson",
+      "status": "active"
+    },
+    {
+      "id": "team-hr",
+      "name": "Human Resources",
+      "purpose": "Recruiting, employee relations, and HR operations",
+      "department": "Operations",
+      "lead": "Amanda Garcia",
+      "status": "active"
+    },
+    {
+      "id": "team-finance",
+      "name": "Finance & Accounting",
+      "purpose": "Financial planning, accounting, and reporting",
+      "department": "Operations",
+      "lead": "Robert Lee",
+      "status": "active"
+    },
+    {
+      "id": "team-infosec",
+      "name": "Information Security",
+      "purpose": "Security operations, incident response, and compliance",
+      "department": "Security",
+      "lead": "Alex Turner",
+      "status": "active"
+    },
+    {
+      "id": "team-project-phoenix",
+      "name": "Project Phoenix (Cross-Functional)",
+      "purpose": "New AI-powered analytics feature - Cross-departmental initiative",
+      "department": "Engineering",
+      "lead": "Priya Patel",
+      "status": "active",
+      "project_start": "2025-08-01T09:00:00+00:00",
+      "project_end": "2025-12-31T17:00:00+00:00"
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp-001",
+      "name": "Sarah Chen",
+      "email": "sarah.chen@techflow.com",
+      "title": "CEO & Co-Founder",
+      "department": "Executive",
+      "team": "Executive Team",
+      "skills": [
+        "Leadership",
+        "Strategy",
+        "Business Development",
+        "Fundraising"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0001",
+      "employee_type": "full_time",
+      "security_clearance": "executive",
+      "hire_date": "2018-03-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "18:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "executive"
+    },
+    {
+      "id": "emp-002",
+      "name": "Thomas Anderson",
+      "email": "thomas.anderson@techflow.com",
+      "title": "CTO",
+      "department": "Executive",
+      "team": "Executive Team",
+      "skills": [
+        "System Architecture",
+        "Leadership",
+        "Cloud Computing",
+        "AI/ML"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0002",
+      "employee_type": "full_time",
+      "security_clearance": "executive",
+      "hire_date": "2018-03-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "19:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "executive"
+    },
+    {
+      "id": "emp-003",
+      "name": "Jennifer Williams",
+      "email": "jennifer.williams@techflow.com",
+      "title": "CFO",
+      "department": "Executive",
+      "team": "Executive Team",
+      "skills": [
+        "Financial Planning",
+        "Investment",
+        "Accounting",
+        "Compliance"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0003",
+      "employee_type": "full_time",
+      "security_clearance": "executive",
+      "hire_date": "2019-01-10T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "executive"
+    },
+    {
+      "id": "emp-004",
+      "name": "Marcus Johnson",
+      "email": "marcus.johnson@techflow.com",
+      "title": "Engineering Manager - Frontend",
+      "department": "Engineering",
+      "team": "Frontend Engineering",
+      "skills": [
+        "React",
+        "TypeScript",
+        "Leadership",
+        "Architecture",
+        "Performance"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0004",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2019-06-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-005",
+      "name": "Alice Cooper",
+      "email": "alice.cooper@techflow.com",
+      "title": "Senior Frontend Engineer",
+      "department": "Engineering",
+      "team": "Frontend Engineering",
+      "skills": [
+        "React",
+        "JavaScript",
+        "CSS",
+        "UI/UX"
+      ],
+      "location": "Austin, TX",
+      "timezone": "America/Chicago",
+      "phone": "+1-512-555-0005",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-03-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "10:00",
+        "end": "19:00"
+      },
+      "remote_eligible": true,
+      "acting_role": true,
+      "acting_role_target": "VP Engineering",
+      "acting_role_start": "2025-10-01",
+      "acting_role_valid_until": "2025-12-31",
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-006",
+      "name": "Bob Chen",
+      "email": "bob.chen@techflow.com",
+      "title": "Frontend Engineer",
+      "department": "Engineering",
+      "team": "Frontend Engineering",
+      "skills": [
+        "Vue.js",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "location": "Remote",
+      "timezone": "America/New_York",
+      "phone": "+1-646-555-0006",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-09-20T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "acting_role": true,
+      "acting_role_target": "Frontend Team Lead",
+      "acting_role_start": "2025-06-01",
+      "acting_role_valid_until": "2025-09-30",
+      "acting_role_end": "2025-09-30",
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-007",
+      "name": "Priya Patel",
+      "email": "priya.patel@techflow.com",
+      "title": "Engineering Manager - Backend",
+      "department": "Engineering",
+      "team": "Backend Engineering",
+      "skills": [
+        "Python",
+        "Go",
+        "PostgreSQL",
+        "Leadership",
+        "Microservices"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0007",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-08-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:30",
+        "end": "17:30"
+      },
+      "remote_eligible": true,
+      "is_on_call": true,
+      "on_call_role": "backend_primary",
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-008",
+      "name": "Carlos Martinez",
+      "email": "carlos.martinez@techflow.com",
+      "title": "Senior Backend Engineer",
+      "department": "Engineering",
+      "team": "Backend Engineering",
+      "skills": [
+        "Node.js",
+        "MongoDB",
+        "Redis",
+        "AWS"
+      ],
+      "location": "Miami, FL",
+      "timezone": "America/New_York",
+      "phone": "+1-305-555-0008",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-05-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": true,
+      "on_call_role": "backend_secondary",
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-009",
+      "name": "Emily Zhang",
+      "email": "emily.zhang@techflow.com",
+      "title": "Backend Engineer",
+      "department": "Engineering",
+      "team": "Backend Engineering",
+      "skills": [
+        "Python",
+        "Django",
+        "REST APIs",
+        "Docker"
+      ],
+      "location": "Seattle, WA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-206-555-0009",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-11-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-010",
+      "name": "Frank Wilson",
+      "email": "frank.wilson@techflow.com",
+      "title": "Backend Engineer",
+      "department": "Engineering",
+      "team": "Backend Engineering",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "Kafka",
+        "Elasticsearch"
+      ],
+      "location": "Remote",
+      "timezone": "America/Denver",
+      "phone": "+1-720-555-0010",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2022-02-14T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-011",
+      "name": "James Wilson",
+      "email": "james.wilson@techflow.com",
+      "title": "DevOps Manager",
+      "department": "Engineering",
+      "team": "DevOps & Infrastructure",
+      "skills": [
+        "Kubernetes",
+        "AWS",
+        "Terraform",
+        "Leadership",
+        "SRE"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0011",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-09-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "07:00",
+        "end": "16:00"
+      },
+      "remote_eligible": true,
+      "on_call_schedule": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-012",
+      "name": "Grace Kim",
+      "email": "grace.kim@techflow.com",
+      "title": "Senior DevOps Engineer",
+      "department": "Engineering",
+      "team": "DevOps & Infrastructure",
+      "skills": [
+        "CI/CD",
+        "Jenkins",
+        "Docker",
+        "Monitoring"
+      ],
+      "location": "Portland, OR",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-503-555-0012",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2020-07-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "on_call_schedule": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-013",
+      "name": "Hassan Ali",
+      "email": "hassan.ali@techflow.com",
+      "title": "DevOps Engineer",
+      "department": "Engineering",
+      "team": "DevOps & Infrastructure",
+      "skills": [
+        "Linux",
+        "Ansible",
+        "Prometheus",
+        "Grafana"
+      ],
+      "location": "Remote",
+      "timezone": "America/Chicago",
+      "phone": "+1-312-555-0013",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-04-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-014",
+      "name": "Elena Rodriguez",
+      "email": "elena.rodriguez@techflow.com",
+      "title": "Mobile Engineering Manager",
+      "department": "Engineering",
+      "team": "Mobile Engineering",
+      "skills": [
+        "iOS",
+        "Swift",
+        "Android",
+        "Kotlin",
+        "Leadership"
+      ],
+      "location": "Los Angeles, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-323-555-0014",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-10-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-015",
+      "name": "Isabella Rossi",
+      "email": "isabella.rossi@techflow.com",
+      "title": "Senior iOS Engineer",
+      "department": "Engineering",
+      "team": "Mobile Engineering",
+      "skills": [
+        "Swift",
+        "SwiftUI",
+        "UIKit",
+        "Core Data"
+      ],
+      "location": "Remote",
+      "timezone": "America/New_York",
+      "phone": "+1-212-555-0015",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-01-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-016",
+      "name": "Kenji Tanaka",
+      "email": "kenji.tanaka@techflow.com",
+      "title": "Android Engineer",
+      "department": "Engineering",
+      "team": "Mobile Engineering",
+      "skills": [
+        "Kotlin",
+        "Android SDK",
+        "Jetpack Compose",
+        "MVVM"
+      ],
+      "location": "San Jose, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-408-555-0016",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-08-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "10:00",
+        "end": "19:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-017",
+      "name": "David Kim",
+      "email": "david.kim@techflow.com",
+      "title": "VP of Product",
+      "department": "Product",
+      "team": "Product Management",
+      "skills": [
+        "Product Strategy",
+        "Roadmapping",
+        "Leadership",
+        "Analytics"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0017",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-02-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-018",
+      "name": "Laura Bennett",
+      "email": "laura.bennett@techflow.com",
+      "title": "Senior Product Manager",
+      "department": "Product",
+      "team": "Product Management",
+      "skills": [
+        "Agile",
+        "Product Discovery",
+        "User Research",
+        "SQL"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0018",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-06-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-019",
+      "name": "Maya Nguyen",
+      "email": "maya.nguyen@techflow.com",
+      "title": "Product Manager",
+      "department": "Product",
+      "team": "Product Management",
+      "skills": [
+        "Product Management",
+        "Data Analysis",
+        "Figma",
+        "APIs"
+      ],
+      "location": "Austin, TX",
+      "timezone": "America/Chicago",
+      "phone": "+1-512-555-0019",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-10-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-020",
+      "name": "Sophie Martinez",
+      "email": "sophie.martinez@techflow.com",
+      "title": "Design Lead",
+      "department": "Product",
+      "team": "Design Team",
+      "skills": [
+        "UI/UX Design",
+        "Figma",
+        "User Research",
+        "Leadership"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0020",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-02-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-021",
+      "name": "Oliver Brown",
+      "email": "oliver.brown@techflow.com",
+      "title": "Senior UX Designer",
+      "department": "Product",
+      "team": "Design Team",
+      "skills": [
+        "Wireframing",
+        "Prototyping",
+        "User Testing",
+        "Design Systems"
+      ],
+      "location": "Seattle, WA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-206-555-0021",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-03-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-022",
+      "name": "Michael O'Brien",
+      "email": "michael.obrien@techflow.com",
+      "title": "VP of Sales",
+      "department": "Sales",
+      "team": "Enterprise Sales",
+      "skills": [
+        "Enterprise Sales",
+        "Negotiation",
+        "Leadership",
+        "CRM"
+      ],
+      "location": "New York, NY",
+      "timezone": "America/New_York",
+      "phone": "+1-212-555-0022",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-05-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-023",
+      "name": "Rachel Green",
+      "email": "rachel.green@techflow.com",
+      "title": "Enterprise Account Executive",
+      "department": "Sales",
+      "team": "Enterprise Sales",
+      "skills": [
+        "B2B Sales",
+        "Salesforce",
+        "Cold Calling",
+        "Account Management"
+      ],
+      "location": "New York, NY",
+      "timezone": "America/New_York",
+      "phone": "+1-212-555-0023",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-09-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-024",
+      "name": "Steven Park",
+      "email": "steven.park@techflow.com",
+      "title": "Account Executive",
+      "department": "Sales",
+      "team": "Enterprise Sales",
+      "skills": [
+        "Sales",
+        "Prospecting",
+        "Demo Presentations",
+        "Contract Negotiation"
+      ],
+      "location": "Chicago, IL",
+      "timezone": "America/Chicago",
+      "phone": "+1-312-555-0024",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-06-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-025",
+      "name": "Natalie Wong",
+      "email": "natalie.wong@techflow.com",
+      "title": "Sales Development Representative",
+      "department": "Sales",
+      "team": "Enterprise Sales",
+      "skills": [
+        "Lead Generation",
+        "Email Marketing",
+        "Outbound Sales",
+        "LinkedIn"
+      ],
+      "location": "Remote",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0025",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2022-04-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-026",
+      "name": "Jessica Thompson",
+      "email": "jessica.thompson@techflow.com",
+      "title": "Director of Customer Success",
+      "department": "Sales",
+      "team": "Customer Success",
+      "skills": [
+        "Customer Success",
+        "Account Management",
+        "Leadership",
+        "Zendesk"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0026",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-11-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-027",
+      "name": "Daniel Rivera",
+      "email": "daniel.rivera@techflow.com",
+      "title": "Customer Success Manager",
+      "department": "Sales",
+      "team": "Customer Success",
+      "skills": [
+        "Customer Support",
+        "Problem Solving",
+        "Communication",
+        "Training"
+      ],
+      "location": "Austin, TX",
+      "timezone": "America/Chicago",
+      "phone": "+1-512-555-0027",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-12-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-028",
+      "name": "Samantha Lee",
+      "email": "samantha.lee@techflow.com",
+      "title": "Technical Support Engineer",
+      "department": "Sales",
+      "team": "Customer Success",
+      "skills": [
+        "Technical Support",
+        "Debugging",
+        "APIs",
+        "SQL"
+      ],
+      "location": "Remote",
+      "timezone": "America/New_York",
+      "phone": "+1-646-555-0028",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-07-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-029",
+      "name": "Amanda Garcia",
+      "email": "amanda.garcia@techflow.com",
+      "title": "VP of People Operations",
+      "department": "Operations",
+      "team": "Human Resources",
+      "skills": [
+        "HR Management",
+        "Recruiting",
+        "Leadership",
+        "Employee Relations"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0029",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-07-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-030",
+      "name": "Brandon Scott",
+      "email": "brandon.scott@techflow.com",
+      "title": "HR Specialist",
+      "department": "Operations",
+      "team": "Human Resources",
+      "skills": [
+        "Recruiting",
+        "Onboarding",
+        "Payroll",
+        "Benefits Administration"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0030",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2020-08-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-031",
+      "name": "Robert Lee",
+      "email": "robert.lee@techflow.com",
+      "title": "Controller",
+      "department": "Operations",
+      "team": "Finance & Accounting",
+      "skills": [
+        "Accounting",
+        "Financial Reporting",
+        "Budgeting",
+        "QuickBooks"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0031",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2019-12-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-032",
+      "name": "Christina Adams",
+      "email": "christina.adams@techflow.com",
+      "title": "Senior Accountant",
+      "department": "Operations",
+      "team": "Finance & Accounting",
+      "skills": [
+        "Financial Analysis",
+        "Tax Preparation",
+        "Excel",
+        "SAP"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0032",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2020-11-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-033",
+      "name": "Victoria White",
+      "email": "victoria.white@techflow.com",
+      "title": "Operations Coordinator",
+      "department": "Operations",
+      "team": "Human Resources",
+      "skills": [
+        "Office Management",
+        "Event Planning",
+        "Vendor Relations",
+        "Slack"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0033",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2021-05-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-034",
+      "name": "Patrick Murphy",
+      "email": "patrick.murphy@techflow.com",
+      "title": "Legal Counsel",
+      "department": "Operations",
+      "team": "Human Resources",
+      "skills": [
+        "Contract Law",
+        "Corporate Law",
+        "Compliance",
+        "Risk Management"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0034",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2020-04-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-035",
+      "name": "Alex Turner",
+      "email": "alex.turner@techflow.com",
+      "title": "CISO - Chief Information Security Officer",
+      "department": "Security",
+      "team": "Information Security",
+      "skills": [
+        "Security Strategy",
+        "Compliance",
+        "Incident Response",
+        "Leadership"
+      ],
+      "location": "Remote",
+      "timezone": "America/New_York",
+      "phone": "+1-646-555-0035",
+      "employee_type": "full_time",
+      "security_clearance": "executive",
+      "hire_date": "2019-10-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "on_call_schedule": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "executive"
+    },
+    {
+      "id": "emp-036",
+      "name": "Nina Patel",
+      "email": "nina.patel@techflow.com",
+      "title": "Security Engineer",
+      "department": "Security",
+      "team": "Information Security",
+      "skills": [
+        "Penetration Testing",
+        "SIEM",
+        "Firewalls",
+        "Vulnerability Assessment"
+      ],
+      "location": "Remote",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0036",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2020-10-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "on_call_schedule": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-037",
+      "name": "Ryan Foster",
+      "email": "ryan.foster@techflow.com",
+      "title": "Compliance Specialist",
+      "department": "Security",
+      "team": "Information Security",
+      "skills": [
+        "SOC 2",
+        "GDPR",
+        "HIPAA",
+        "ISO 27001",
+        "Audit Management"
+      ],
+      "location": "Remote",
+      "timezone": "America/Chicago",
+      "phone": "+1-312-555-0037",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2021-02-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-038",
+      "name": "Monica Lewis",
+      "email": "monica.lewis@techflow.com",
+      "title": "Privacy Officer",
+      "department": "Security",
+      "team": "Information Security",
+      "skills": [
+        "Data Privacy",
+        "GDPR",
+        "CCPA",
+        "Privacy Impact Assessments"
+      ],
+      "location": "Remote",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0038",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2021-09-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-039",
+      "name": "Lisa Kumar",
+      "email": "lisa.kumar@techflow.com",
+      "title": "QA Engineer (Contractor)",
+      "department": "Engineering",
+      "team": "Backend Engineering",
+      "skills": [
+        "Test Automation",
+        "Selenium",
+        "Python",
+        "Manual Testing"
+      ],
+      "location": "Remote",
+      "timezone": "Asia/Kolkata",
+      "phone": "+91-22-555-0039",
+      "employee_type": "contractor",
+      "security_clearance": "limited",
+      "hire_date": "2024-06-01T09:00:00+05:30",
+      "contract_end_date": "2025-12-31",
+      "working_hours": {
+        "start": "10:00",
+        "end": "19:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "limited"
+    },
+    {
+      "id": "emp-040",
+      "name": "Raj Mehta",
+      "email": "raj.mehta@techflow-contractor.com",
+      "title": "DevOps Consultant (Contractor)",
+      "department": "Engineering",
+      "team": "DevOps & Infrastructure",
+      "skills": [
+        "Kubernetes",
+        "Terraform",
+        "Cloud Migration",
+        "Architecture"
+      ],
+      "location": "Remote",
+      "timezone": "Asia/Kolkata",
+      "phone": "+91-11-555-0040",
+      "employee_type": "contractor",
+      "security_clearance": "limited",
+      "hire_date": "2024-09-01T09:00:00+05:30",
+      "contract_end_date": "2025-10-15",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "contract_expired": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "limited"
+    },
+    {
+      "id": "emp-041",
+      "name": "Emma Watson",
+      "email": "emma.watson@techflow.com",
+      "title": "Marketing Manager",
+      "department": "Executive",
+      "team": "Executive Team",
+      "skills": [
+        "Digital Marketing",
+        "Content Strategy",
+        "SEO",
+        "Analytics"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0041",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2020-01-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-042",
+      "name": "Kevin Zhang",
+      "email": "kevin.zhang@techflow.com",
+      "title": "Data Scientist",
+      "department": "Engineering",
+      "team": "Backend Engineering",
+      "skills": [
+        "Machine Learning",
+        "Python",
+        "TensorFlow",
+        "Data Analysis"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0042",
+      "employee_type": "full_time",
+      "security_clearance": "elevated",
+      "hire_date": "2021-12-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "10:00",
+        "end": "19:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "elevated"
+    },
+    {
+      "id": "emp-043",
+      "name": "Sophia Anderson",
+      "email": "sophia.anderson@techflow.com",
+      "title": "Business Analyst",
+      "department": "Product",
+      "team": "Product Management",
+      "skills": [
+        "Requirements Analysis",
+        "SQL",
+        "Tableau",
+        "Process Improvement"
+      ],
+      "location": "Chicago, IL",
+      "timezone": "America/Chicago",
+      "phone": "+1-312-555-0043",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2022-03-01T09:00:00+00:00",
+      "working_hours": {
+        "start": "08:00",
+        "end": "17:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-044",
+      "name": "Tyler Johnson",
+      "email": "tyler.johnson@techflow.com",
+      "title": "Technical Writer",
+      "department": "Product",
+      "team": "Product Management",
+      "skills": [
+        "Documentation",
+        "API Documentation",
+        "Markdown",
+        "Git"
+      ],
+      "location": "Remote",
+      "timezone": "America/Mountain",
+      "phone": "+1-720-555-0044",
+      "employee_type": "full_time",
+      "security_clearance": "standard",
+      "hire_date": "2022-05-15T09:00:00+00:00",
+      "working_hours": {
+        "start": "09:00",
+        "end": "18:00"
+      },
+      "remote_eligible": true,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "standard"
+    },
+    {
+      "id": "emp-045",
+      "name": "Zoe Mitchell",
+      "email": "zoe.mitchell@techflow.com",
+      "title": "Intern - Software Engineering",
+      "department": "Engineering",
+      "team": "Frontend Engineering",
+      "skills": [
+        "JavaScript",
+        "React",
+        "HTML",
+        "CSS"
+      ],
+      "location": "San Francisco, CA",
+      "timezone": "America/Los_Angeles",
+      "phone": "+1-415-555-0045",
+      "employee_type": "intern",
+      "security_clearance": "limited",
+      "hire_date": "2025-06-01T09:00:00+00:00",
+      "internship_end": "2025-08-31T17:00:00+00:00",
+      "working_hours": {
+        "start": "10:00",
+        "end": "18:00"
+      },
+      "remote_eligible": false,
+      "is_on_call": false,
+      "on_call_role": null,
+      "emergency_auth_level": "limited"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-phoenix",
+      "name": "Project Phoenix",
+      "description": "AI-powered analytics dashboard for enterprise customers",
+      "status": "active",
+      "start_date": "2025-08-01T09:00:00+00:00",
+      "end_date": "2025-12-31T17:00:00+00:00",
+      "budget": 500000,
+      "project_lead": "Priya Patel",
+      "department": "Engineering",
+      "data_classification": "confidential",
+      "team_members": [
+        "Priya Patel",
+        "Emily Zhang",
+        "Kevin Zhang",
+        "David Kim",
+        "Laura Bennett",
+        "Sophie Martinez"
+      ]
+    },
+    {
+      "id": "proj-security-audit",
+      "name": "SOC 2 Type II Certification",
+      "description": "Complete SOC 2 Type II compliance and certification process",
+      "status": "active",
+      "start_date": "2025-07-01T09:00:00+00:00",
+      "end_date": "2026-03-31T17:00:00+00:00",
+      "budget": 150000,
+      "project_lead": "Alex Turner",
+      "department": "Security",
+      "data_classification": "restricted",
+      "team_members": [
+        "Alex Turner",
+        "Ryan Foster",
+        "Monica Lewis",
+        "James Wilson"
+      ]
+    },
+    {
+      "id": "proj-mobile-v2",
+      "name": "Mobile App v2.0 Redesign",
+      "description": "Complete redesign and rebuild of mobile applications",
+      "status": "active",
+      "start_date": "2025-09-01T09:00:00+00:00",
+      "end_date": "2026-02-28T17:00:00+00:00",
+      "budget": 300000,
+      "project_lead": "Elena Rodriguez",
+      "department": "Engineering",
+      "data_classification": "internal",
+      "team_members": [
+        "Elena Rodriguez",
+        "Isabella Rossi",
+        "Kenji Tanaka",
+        "Sophie Martinez",
+        "Oliver Brown"
+      ]
+    }
+  ],
+  "acting_roles": [
+    {
+      "employee_id": "emp-012",
+      "employee_name": "Grace Kim",
+      "acting_as": "Acting DevOps Manager",
+      "covering_for": "James Wilson",
+      "reason": "Parental Leave",
+      "start_date": "2025-10-01T00:00:00+00:00",
+      "end_date": "2025-11-30T23:59:59+00:00",
+      "temporary_clearance": "elevated"
+    },
+    {
+      "employee_id": "emp-018",
+      "employee_name": "Laura Bennett",
+      "acting_as": "Acting VP of Product",
+      "covering_for": "David Kim",
+      "reason": "Medical Leave",
+      "start_date": "2025-10-15T00:00:00+00:00",
+      "end_date": "2025-10-31T23:59:59+00:00",
+      "temporary_clearance": "elevated"
+    }
+  ],
+  "on_call_rotations": [
+    {
+      "team": "DevOps & Infrastructure",
+      "current_on_call": "James Wilson",
+      "rotation_start": "2025-10-01T00:00:00+00:00",
+      "rotation_end": "2025-10-07T23:59:59+00:00",
+      "escalation_contact": "Thomas Anderson"
+    },
+    {
+      "team": "Information Security",
+      "current_on_call": "Nina Patel",
+      "rotation_start": "2025-10-01T00:00:00+00:00",
+      "rotation_end": "2025-10-14T23:59:59+00:00",
+      "escalation_contact": "Alex Turner"
+    }
+  ]
+}

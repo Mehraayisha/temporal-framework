@@ -101,6 +101,52 @@ docker run --name neo4j -p7474:7474 -p7687:7687 -e NEO4J_AUTH=neo4j/password neo
 # Configure connection in .env file (see Configuration section)
 ```
 
+### Environment Configuration
+
+Create a `.env` file in the project root:
+
+```bash
+# Neo4j Configuration
+NEO4J_URI="bolt://localhost:7687"
+NEO4J_USER="neo4j"
+NEO4J_PASSWORD="your_password"
+
+# API Keys
+OPENAI_API_KEY="sk-..."
+GROQ_API_KEY="gsk_..."
+
+# Environment
+ENVIRONMENT="development"
+
+# Team B Integration (optional)
+GRAPHITI_MODE="team_b_api"  # Enable Team B organizational chart integration
+TEAM_B_API_URL="http://localhost:8000"
+```
+
+### Team B Organizational Chart Integration (Optional)
+
+The temporal-framework can integrate with **Team B's organizational chart API** as an optional data source. Team B runs as a **separate FastAPI service** and is not included in this repository.
+
+**When to use:**
+- You have Team B service running separately
+- You need employee organizational context (department, manager, security clearance)
+- You want to replace Graphiti as the org chart data source
+
+**Setup:**
+1. Start Team B service separately (see Team B documentation)
+2. Set environment variables:
+   ```bash
+   GRAPHITI_MODE="team_b_api"
+   TEAM_B_API_URL="http://localhost:8000"  # Team B's FastAPI server
+   ```
+3. Run temporal-framework: `python main.py`
+
+The enricher will call Team B's HTTP API to fetch employee context. If Team B is unavailable, it automatically falls back to Graphiti.
+
+See [TEAM_B_INTEGRATION.md](TEAM_B_INTEGRATION.md) for detailed integration guide.
+
+**Default behavior:** If Team B environment variables are not set, temporal-framework uses Graphiti-core (included in this project).
+
 ## 🎯 Usage Examples
 
 ### Basic 6-Tuple Access Control
@@ -177,27 +223,20 @@ decision = policy_engine.evaluate_request(emergency_tuple)
 ### Graph Database Integration
 
 ```python
-from core.neo4j_manager import TemporalNeo4jManager
 from core.graphiti_manager import TemporalGraphitiManager
 
-# Neo4j integration
-neo4j_manager = TemporalNeo4jManager(
-    uri="bolt://localhost:7687",
-    user="neo4j", 
-    password="password"
+# Preferred: Graphiti knowledge graph (AI-enhanced queries)
+graphiti_manager = TemporalGraphitiManager(
+    server_url="https://graphiti.example",
+    api_key="YOUR_API_KEY"
 )
+# await graphiti_manager.initialize()  # Async init where applicable
 
-# Save temporal context to graph
-context_id = temporal_context.save_to_neo4j(neo4j_manager)
-print(f"Context saved to Neo4j: {context_id}")
-
-# Graphiti integration (for AI-enhanced queries)
-# Note: Graphiti integration is partially implemented
-graphiti_manager = TemporalGraphitiManager()
-# await graphiti_manager.initialize()  # Async support in development
-
-# entity_id = temporal_context.save_to_graphiti(graphiti_manager)  # Sync version
-# print(f"Context saved to Graphiti: {entity_id}")
+# Optional: Direct Neo4j manager (legacy/direct DB access). Use only if needed.
+# from core.neo4j_manager import Neo4jConfig
+# neo4j_manager = Neo4jConfig.get_company_manager(password="password")
+# temporal_context.save_to_neo4j(neo4j_manager)
+# entity_id = temporal_context.save_to_graphiti(graphiti_manager)
 ```
 
 ## 🏗️ Architecture
@@ -225,7 +264,7 @@ graphiti_manager = TemporalGraphitiManager()
 - **`TemporalContext`**: Rich contextual information with time awareness  
 - **`EnhancedContextualIntegrityTuple`**: 6-tuple access control model
 - **`TemporalPolicyEngine`**: Policy evaluation with temporal logic
-- **`TemporalNeo4jManager`**: Neo4j graph database operations
+- **`TemporalNeo4jManager`**: Neo4j graph database operations (optional)
 - **`TemporalGraphitiManager`**: Graphiti AI knowledge graph integration
 
 ### Data Flow
@@ -539,6 +578,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Neo4j](https://neo4j.com/) for graph database capabilities
 - [Graphiti](https://github.com/graphiti-ai/graphiti) for AI knowledge graphs
 - Inspired by research in contextual integrity and temporal access control
+
+---
+
+## Integration Guide
+
+The project includes a step-by-step integration guide for embedding the Privacy Firewall into other applications. See `INTEGRATION_GUIDE.md` in the repository root for platform-specific instructions, sample payloads, and troubleshooting steps. The guide prefers the Graphiti knowledge-graph when available; direct Neo4j usage is optional and only required for legacy setups.
 
 ---
 

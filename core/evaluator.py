@@ -316,6 +316,8 @@ def evaluate(request_tuple: EnhancedContextualIntegrityTuple, rules=None, neo4j_
             continue
         if not _match_field(request_tuple.data_recipient, rtu.get("data_recipient", "*")):
             continue
+        if not _match_field(request_tuple.transmission_principle, rtu.get("transmission_principle", "*")):
+            continue
         # temporal checks
         tconf = rule.get("temporal_context", {})
         # situation check
